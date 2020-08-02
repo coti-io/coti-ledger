@@ -1,0 +1,15 @@
+@import './Bootstrap';
+
+body {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 25px;
+  color: #666666;
+  overflow-x: hidden;
+}
+
+.address,
+.function,
+.bytes {
+  font-family: 'Roboto Mono';
+}

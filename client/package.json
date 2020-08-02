@@ -5,8 +5,9 @@
     "packages/*"
   ],
   "scripts": {
+    "install": "lerna bootstrap",
     "build": "lerna run build",
-    "install": "lerna bootstrap"
+    "start": "lerna run start"
   },
   "dependencies": {
     "lerna": "^3.22.1"
