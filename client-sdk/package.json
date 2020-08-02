@@ -1,0 +1,7 @@
+{
+  "name": "client-sdk",
+  "version": "0.1.0",
+  "description": "COTI Ledger app client SDK",
+  "main": "index.js",
+  "private": true
+}
