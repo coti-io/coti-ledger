@@ -2,9 +2,10 @@ bin
 debug
 dep
 obj
-dev-env
+build
 src/glyphs.c
 src/glyphs.h
 .idea
 .vscode
 gitignore
+.DS_Store
