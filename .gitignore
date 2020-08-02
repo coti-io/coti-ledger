@@ -1,3 +1,6 @@
+.idea
+.vscode
+.DS_Store
 bin
 debug
 dep
@@ -5,7 +8,3 @@ obj
 build
 src/glyphs.c
 src/glyphs.h
-.idea
-.vscode
-gitignore
-.DS_Store
