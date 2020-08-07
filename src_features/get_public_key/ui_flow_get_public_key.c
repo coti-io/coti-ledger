@@ -9,7 +9,7 @@ UX_FLOW_DEF_NOCB(
     {
         &C_icon_eye,
         "Verify",
-        "address",
+        "Public Key",
     });
 UX_FLOW_DEF_NOCB(
     ux_display_public_flow_2_step,
