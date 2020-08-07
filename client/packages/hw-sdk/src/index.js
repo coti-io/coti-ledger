@@ -4,7 +4,7 @@ const COTI_SCRAMBLE_KEY = 'COTI';
 
 export const BIP32_PATH = "44'/6779'/0'/0";
 
-export default class HWSDK {
+export class HWSDK {
   constructor(transport) {
     this.transport = transport;
 
@@ -12,7 +12,7 @@ export default class HWSDK {
   }
 
   // Get COTI address for a given BIP32 path.
-  async getAddress(path) {
+  async getAddress(path, display = true) {
     const paths = bippath.fromString(path).toPathArray();
     const buffer = Buffer.alloc(1 + paths.length * 4);
     buffer[0] = paths.length;
@@ -20,7 +20,7 @@ export default class HWSDK {
       buffer.writeUInt32BE(element, 1 + 4 * index);
     });
 
-    const response = await this.transport.send(0xe0, 0x02, 0x00, 0x00, buffer);
+    const response = await this.transport.send(0xe0, 0x02, display, 0x00, buffer);
     const result = {};
     const publicKeyLength = response[0];
     const addressLength = response[1 + publicKeyLength];

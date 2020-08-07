@@ -1,0 +1,12 @@
+.loader {
+  .modal-content {
+    border: none;
+    background: none;
+  }
+}
+
+.modal-backdrop {
+  &.fade.show {
+    opacity: 0.3;
+  }
+}
