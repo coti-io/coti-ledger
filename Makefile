@@ -33,9 +33,9 @@ DEFINES += $(DEFINES_LIB)
 
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
-	ICONNAME=icons/nanox_app_coti.gif
+	ICONNAME=icons/nanox_app_coti.ico
 else
-	ICONNAME=icons/nanos_app_coti.gif
+	ICONNAME=icons/nanos_app_coti.ico
 endif
 
 
@@ -153,13 +153,16 @@ load: all
 load-offline: all
 	python -m ledgerblue.loadApp $(APP_LOAD_PARAMS) --offline
 
-delete:
-	python -m ledgerblue.deleteApp $(COMMON_DELETE_PARAMS)
-
-release: all
+load-script: all
+	$(into $APP_LOAD_PARAMS)
 	export APP_LOAD_PARAMS_EVALUATED="$(shell printf '\\"%s\\" ' $(APP_LOAD_PARAMS))"; \
 	cat load-template.sh | envsubst > load.sh
 	chmod +x load.sh
+
+delete:
+	python -m ledgerblue.deleteApp $(COMMON_DELETE_PARAMS)
+
+release: load-script
 	tar -zcf coti-ledger-app-$(APPVERSION).tar.gz load.sh bin/app.hex
 	rm load.sh
 
