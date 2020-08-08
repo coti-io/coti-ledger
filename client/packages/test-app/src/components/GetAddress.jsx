@@ -11,6 +11,8 @@ import ErrorModal from './ErrorModal';
 import Loader from './Loader';
 import CopyToClipboard from './CopyToClipboard';
 
+import { toBytesInt32, byteArrayToHexString } from '../utils';
+
 const DEFAULT_TIMEOUT = 60000;
 
 const GetAddress = () => {
@@ -40,12 +42,12 @@ const GetAddress = () => {
     setLoading(true);
 
     const path = `${BIP32_PATH}/${index}`;
-    let results;
+    let res;
     try {
       const hw = await connect();
-      results = await hw.getAddress(path);
+      res = await hw.getAddress(path);
 
-      const { publicKey } = results;
+      const { publicKey } = res;
       setPublicKey(publicKey);
       setAddress(toAddress(publicKey));
     } catch (err) {
@@ -59,13 +61,6 @@ const GetAddress = () => {
     }
 
     setLoading(false);
-  };
-
-  const toBytesInt32 = num => {
-    const arr = new ArrayBuffer(4);
-    const view = new DataView(arr);
-    view.setInt32(0, num, false);
-    return arr;
   };
 
   const paddingPublicKey = (publicKeyX, publicKeyY) => {
@@ -86,21 +81,6 @@ const GetAddress = () => {
     }
 
     return publicX + publicY;
-  };
-
-  const byteArrayToHexString = uint8arr => {
-    if (!uint8arr) {
-      return '';
-    }
-
-    let hexStr = '';
-    for (let i = 0; i < uint8arr.length; i++) {
-      var hex = (uint8arr[i] & 0xff).toString(16);
-      hex = hex.length === 1 ? '0' + hex : hex;
-      hexStr += hex;
-    }
-
-    return hexStr;
   };
 
   const toAddress = publicKey => {
