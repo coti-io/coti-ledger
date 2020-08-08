@@ -7,8 +7,6 @@ import avatar from '../images/coti.png';
 import './Header.scss';
 
 const Header = () => {
-
-
   return (
     <header>
       <div className="container-fluid">

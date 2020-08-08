@@ -5,6 +5,7 @@ import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import { listen } from '@ledgerhq/logs';
 import { HWSDK, BIP32_PATH } from '@coti/hw-sdk';
 
+import ErrorModal from './ErrorModal';
 import Loader from './Loader';
 import CopyToClipboard from './CopyToClipboard';
 
@@ -15,6 +16,7 @@ const GetAddress = () => {
   const [index, setIndex] = useState(0);
   const [publicKey, setPublicKey] = useState('');
   const [address, setAddress] = useState('');
+  const [error, setError] = useState({});
 
   const connect = async () => {
     const transport = await TransportWebUSB.create();
@@ -36,29 +38,31 @@ const GetAddress = () => {
     setLoading(true);
 
     const path = `${BIP32_PATH}/${index}`;
-    debugger;
     let results;
     try {
       const hw = await connect();
       results = await hw.getAddress(path);
-      debugger;
     } catch (err) {
       console.error(`${err.name}: ${err.message}`);
-      debugger;
 
-      // let message = err.message;
-      // setError({
-      //   show: true,
-      //   title: 'Sending Failed',
-      //   message
-      // });
+      setError({
+        show: true,
+        title: err.name,
+        message: err.message
+      });
     }
 
     setLoading(false);
 
+    if (!results) {
+      return;
+    }
+
     setPublicKey(results.publicKey);
     setAddress('Kuku ' + Date.now());
   };
+
+  const { show, title, message } = error;
 
   return (
     <>
@@ -111,6 +115,8 @@ const GetAddress = () => {
           </Col>
         </FormGroup>
       </Form>
+
+      <ErrorModal show={show} title={title} message={message} onHide={() => setError({})} />
     </>
   );
 };
