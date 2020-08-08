@@ -3,6 +3,8 @@ import { Form, Row, Col, Button, FormGroup, FormLabel, FormControl, InputGroup }
 
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import { listen } from '@ledgerhq/logs';
+import CRC32 from 'crc-32';
+import { ec } from 'elliptic';
 import { HWSDK, BIP32_PATH } from '@coti/hw-sdk';
 
 import ErrorModal from './ErrorModal';
@@ -42,6 +44,10 @@ const GetAddress = () => {
     try {
       const hw = await connect();
       results = await hw.getAddress(path);
+
+      const { publicKey } = results;
+      setPublicKey(publicKey);
+      setAddress(toAddress(publicKey));
     } catch (err) {
       console.error(`${err.name}: ${err.message}`);
 
@@ -53,13 +59,63 @@ const GetAddress = () => {
     }
 
     setLoading(false);
+  };
 
-    if (!results) {
-      return;
+  const toBytesInt32 = num => {
+    const arr = new ArrayBuffer(4);
+    const view = new DataView(arr);
+    view.setInt32(0, num, false);
+    return arr;
+  };
+
+  const paddingPublicKey = (publicKeyX, publicKeyY) => {
+    const paddingLetter = '0';
+    let publicX = publicKeyX;
+    let publicY = publicKeyY;
+
+    if (publicKeyX.length < 64) {
+      for (let i = publicKeyX.length; i < 64; i++) {
+        publicX = paddingLetter + publicX;
+      }
     }
 
-    setPublicKey(results.publicKey);
-    setAddress('Kuku ' + Date.now());
+    if (publicKeyY.length < 64) {
+      for (let i = publicKeyY.length; i < 64; i++) {
+        publicY = paddingLetter + publicY;
+      }
+    }
+
+    return publicX + publicY;
+  };
+
+  const byteArrayToHexString = uint8arr => {
+    if (!uint8arr) {
+      return '';
+    }
+
+    let hexStr = '';
+    for (let i = 0; i < uint8arr.length; i++) {
+      var hex = (uint8arr[i] & 0xff).toString(16);
+      hex = hex.length === 1 ? '0' + hex : hex;
+      hexStr += hex;
+    }
+
+    return hexStr;
+  };
+
+  const toAddress = publicKey => {
+    const secp256k1 = new ec('secp256k1');
+
+    const key = secp256k1.keyFromPublic(publicKey, 'hex');
+    const publicXKeyHex = key.getPublic().x.fromRed().toString(16, 2);
+    const publicYKeyHex = key.getPublic().y.fromRed().toString(16, 2);
+
+    const checkSum = CRC32.buf(Buffer.from(publicXKeyHex + publicYKeyHex, 'hex'));
+    const checkSum4Bytes = Array.from(new Uint8Array(toBytesInt32(checkSum)));
+    const checkSumHex = byteArrayToHexString(checkSum4Bytes);
+    const paddedAddress = paddingPublicKey(publicXKeyHex, publicYKeyHex);
+
+    return `${paddedAddress}${checkSumHex}`;
   };
 
   const { show, title, message } = error;
@@ -93,7 +149,7 @@ const GetAddress = () => {
           </Col>
           <Col md={9}>
             <InputGroup className="mb-3">
-              <FormControl className="key" type="text" value={publicKey} readOnly={true} />
+              <FormControl className="key" as="textarea" rows="3" value={publicKey} readOnly={true} />
               <InputGroup.Append>
                 <CopyToClipboard text={publicKey} />
               </InputGroup.Append>
@@ -107,7 +163,7 @@ const GetAddress = () => {
           </Col>
           <Col md={9}>
             <InputGroup className="mb-3">
-              <FormControl className="address" type="text" value={address} readOnly={true} />
+              <FormControl className="address" as="textarea" rows="3" value={address} readOnly={true} />
               <InputGroup.Append>
                 <CopyToClipboard text={address} />
               </InputGroup.Append>
