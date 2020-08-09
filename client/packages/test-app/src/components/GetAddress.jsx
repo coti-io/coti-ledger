@@ -1,19 +1,12 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button, FormGroup, FormLabel, FormControl, InputGroup } from 'react-bootstrap';
 
-import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
-import { listen } from '@ledgerhq/logs';
-import CRC32 from 'crc-32';
-import { ec } from 'elliptic';
-import { HWSDK, BIP32_PATH } from '@coti/hw-sdk';
+import { BIP32_PATH } from '@coti/hw-sdk';
+import { getAddressInfo } from '../utils';
 
 import ErrorModal from './ErrorModal';
 import Loader from './Loader';
 import CopyToClipboard from './CopyToClipboard';
-
-import { toBytesInt32, byteArrayToHexString } from '../utils';
-
-const DEFAULT_TIMEOUT = 60000;
 
 const GetAddress = () => {
   const [loading, setLoading] = useState(false);
@@ -21,13 +14,6 @@ const GetAddress = () => {
   const [publicKey, setPublicKey] = useState('');
   const [address, setAddress] = useState('');
   const [error, setError] = useState({});
-
-  const connect = async () => {
-    const transport = await TransportWebUSB.create();
-    transport.setExchangeTimeout(DEFAULT_TIMEOUT);
-
-    return new HWSDK(transport);
-  };
 
   const onChangeIndex = ({ target }) => {
     const element = target;
@@ -42,14 +28,12 @@ const GetAddress = () => {
     setLoading(true);
 
     const path = `${BIP32_PATH}/${index}`;
-    let res;
-    try {
-      const hw = await connect();
-      res = await hw.getAddress(path);
 
-      const { publicKey } = res;
+    try {
+      const { publicKey, address } = await getAddressInfo(path);
+
       setPublicKey(publicKey);
-      setAddress(toAddress(publicKey));
+      setAddress(address);
     } catch (err) {
       console.error(`${err.name}: ${err.message}`);
 
@@ -61,41 +45,6 @@ const GetAddress = () => {
     }
 
     setLoading(false);
-  };
-
-  const paddingPublicKey = (publicKeyX, publicKeyY) => {
-    const paddingLetter = '0';
-    let publicX = publicKeyX;
-    let publicY = publicKeyY;
-
-    if (publicKeyX.length < 64) {
-      for (let i = publicKeyX.length; i < 64; i++) {
-        publicX = paddingLetter + publicX;
-      }
-    }
-
-    if (publicKeyY.length < 64) {
-      for (let i = publicKeyY.length; i < 64; i++) {
-        publicY = paddingLetter + publicY;
-      }
-    }
-
-    return publicX + publicY;
-  };
-
-  const toAddress = publicKey => {
-    const secp256k1 = new ec('secp256k1');
-
-    const key = secp256k1.keyFromPublic(publicKey, 'hex');
-    const publicXKeyHex = key.getPublic().x.fromRed().toString(16, 2);
-    const publicYKeyHex = key.getPublic().y.fromRed().toString(16, 2);
-
-    const checkSum = CRC32.buf(Buffer.from(publicXKeyHex + publicYKeyHex, 'hex'));
-    const checkSum4Bytes = Array.from(new Uint8Array(toBytesInt32(checkSum)));
-    const checkSumHex = byteArrayToHexString(checkSum4Bytes);
-    const paddedAddress = paddingPublicKey(publicXKeyHex, publicYKeyHex);
-
-    return `${paddedAddress}${checkSumHex}`;
   };
 
   const { show, title, message } = error;
@@ -156,7 +105,5 @@ const GetAddress = () => {
     </>
   );
 };
-
-listen(log => console.log(`${log.type}: ${log.message}`));
 
 export default GetAddress;

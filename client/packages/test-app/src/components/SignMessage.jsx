@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button, FormGroup, FormLabel, FormControl, InputGroup } from 'react-bootstrap';
 
-import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
-import { listen } from '@ledgerhq/logs';
-import { HWSDK, BIP32_PATH } from '@coti/hw-sdk';
+import { BIP32_PATH } from '@coti/hw-sdk';
+
+import { signMessage, verifySignature, byteArrayToHexString } from '../utils';
 
 import { keccak256 } from 'js-sha3';
 
@@ -11,9 +11,12 @@ import ErrorModal from './ErrorModal';
 import Loader from './Loader';
 import CopyToClipboard from './CopyToClipboard';
 
-import { byteArrayToHexString } from '../utils';
-
-const DEFAULT_TIMEOUT = 60000;
+const STATUSES = {
+  OK: 'ok',
+  INVALID: 'invalid',
+  WARNING: 'warning',
+  UNDEFINED: 'undefined'
+};
 
 const SignMessage = () => {
   const [loading, setLoading] = useState(false);
@@ -23,14 +26,11 @@ const SignMessage = () => {
   const [v, setV] = useState('');
   const [r, setR] = useState('');
   const [s, setS] = useState('');
+  const [status, setStatus] = useState({
+    status: STATUSES.UNDEFINED,
+    message: ''
+  });
   const [error, setError] = useState({});
-
-  const connect = async () => {
-    const transport = await TransportWebUSB.create();
-    transport.setExchangeTimeout(DEFAULT_TIMEOUT);
-
-    return new HWSDK(transport);
-  };
 
   const onChangeIndex = ({ target }) => {
     const element = target;
@@ -53,14 +53,10 @@ const SignMessage = () => {
     setLoading(true);
 
     const path = `${BIP32_PATH}/${index}`;
-    let res;
+
     try {
-      const hw = await connect();
+      const { v, r, s } = await signMessage(path, message);
 
-      const messageHex = Buffer.from(message).toString('hex');
-      res = await hw.signMessage(path, messageHex);
-
-      const { v, r, s } = res;
       setV(v);
       setR(r);
       setS(s);
@@ -75,6 +71,46 @@ const SignMessage = () => {
     }
 
     setLoading(false);
+  };
+
+  const onVerifySubmit = async event => {
+    event.preventDefault();
+
+    setLoading(true);
+
+    const path = `${BIP32_PATH}/${index}`;
+
+    try {
+      const res = await verifySignature(path, message, r, s);
+      if (res) {
+        setStatus({
+          status: STATUSES.OK,
+          message: 'Message signature verified'
+        });
+      } else {
+        setStatus({ status: STATUSES.INVALID, message: 'Invalid signature' });
+      }
+    } catch (err) {
+      setStatus({ status: STATUSES.INVALID, message: err.message });
+    }
+
+    setLoading(false);
+  };
+
+  const statusClassName = () => {
+    switch (status.status) {
+      case STATUSES.OK:
+        return 'is-valid';
+
+      case STATUSES.INVALID:
+        return 'is-invalid';
+
+      case STATUSES.WARNING:
+        return 'is-invalid';
+
+      default:
+        return;
+    }
   };
 
   const { show, title, message: errMsg } = error;
@@ -164,11 +200,26 @@ const SignMessage = () => {
         </FormGroup>
       </Form>
 
+      <Form className="component-result" onSubmit={onVerifySubmit}>
+        <h5>Verification</h5>
+
+        <FormGroup as={Row}>
+          <Col md={2}>
+            <FormLabel>Result</FormLabel>
+          </Col>
+          <Col md={9}>
+            <InputGroup className="mb-3">
+              <FormControl type="text" className={statusClassName()} value={status.message} readOnly={true} />
+            </InputGroup>
+          </Col>
+        </FormGroup>
+
+        <Button type="submit">Verify</Button>
+      </Form>
+
       <ErrorModal show={show} title={title} message={errMsg} onHide={() => setError({})} />
     </>
   );
 };
-
-listen(log => console.log(`${log.type}: ${log.message}`));
 
 export default SignMessage;

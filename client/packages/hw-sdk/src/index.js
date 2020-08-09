@@ -8,11 +8,11 @@ export class HWSDK {
   constructor(transport) {
     this.transport = transport;
 
-    transport.decorateAppAPIMethods(this, ['getAddress', 'signMessage'], COTI_SCRAMBLE_KEY);
+    transport.decorateAppAPIMethods(this, ['getPublicKey', 'signMessage'], COTI_SCRAMBLE_KEY);
   }
 
-  // Get COTI address for a given BIP32 path.
-  async getAddress(path, display = true) {
+  // Get COTI public key for a given BIP32 path.
+  async getPublicKey(path, display = true) {
     const paths = bippath.fromString(path).toPathArray();
     const buffer = Buffer.alloc(1 + paths.length * 4);
     buffer[0] = paths.length;
