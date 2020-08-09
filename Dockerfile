@@ -36,6 +36,6 @@ RUN git clone --branch nanos-160 https://github.com/LedgerHQ/nanos-secure-sdk.gi
 
 ENV BOLOS_SDK=/sdk
 
-WORKDIR /app
+WORKDIR /coti
 
 CMD ["/bin/bash"]
