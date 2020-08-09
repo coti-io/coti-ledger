@@ -1,11 +1,3 @@
 .idea
 .vscode
 .DS_Store
-app/bin
-app/debug
-app/dep
-app/obj
-app/build
-app/src/glyphs.c
-app/src/glyphs.h
-app/load.sh

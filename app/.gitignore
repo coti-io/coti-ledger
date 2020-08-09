@@ -1,0 +1,8 @@
+bin
+debug
+dep
+obj
+build
+src/glyphs.c
+src/glyphs.h
+load.sh
