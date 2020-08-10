@@ -13,7 +13,10 @@ export class HWSDK {
 
   // Get COTI public key for a given BIP32 account index.
   async getPublicKey(index, interactive = true) {
-    const path = `${BIP32_PATH}/${index}`;
+    let path = BIP32_PATH;
+    if (index !== undefined) {
+      path = `${path}/${index}`;
+    }
     const paths = bippath.fromString(path).toPathArray();
     const buffer = Buffer.alloc(1 + paths.length * 4);
     buffer[0] = paths.length;
@@ -22,13 +25,15 @@ export class HWSDK {
     });
 
     const response = await this.transport.send(0xe0, 0x02, interactive, 0x00, buffer);
-    const result = {};
     const publicKeyLength = response[0];
-    const addressLength = response[1 + publicKeyLength];
-    result.publicKey = response.slice(1, 1 + publicKeyLength).toString('hex');
-    result.address =
-      '0x' + response.slice(1 + publicKeyLength + 1, 1 + publicKeyLength + 1 + addressLength).toString('ascii');
-    return result;
+    const publicKey = response.slice(1, 1 + publicKeyLength).toString('hex');
+
+    return { publicKey };
+  }
+
+  // Get COTI public key for a given BIP32 account index.
+  async getUserPublicKey(interactive = true) {
+    return this.getPublicKey(undefined, interactive);
   }
 
   // Signs a message and retrieves v, r, s given the raw transaction and the BIP32 path.
