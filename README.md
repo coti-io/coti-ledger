@@ -51,4 +51,4 @@ python3 -m ledgerblue.deleteApp --targetId 0x31100004 --appName "COTI"
 
 ## Documentation
 
-This follows the specification available in the [`api.asc`](https://github.com/LedgerHQ/ledger-app-boilerplate/blob/master/doc/api.asc).
+This follows the specification available in the [`api.md`](app/doc/api.md).
