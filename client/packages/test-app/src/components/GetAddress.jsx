@@ -27,10 +27,8 @@ const GetAddress = () => {
 
     setLoading(true);
 
-    const path = `${BIP32_PATH}/${index}`;
-
     try {
-      const { publicKey, address } = await getAddressInfo(path);
+      const { publicKey, address } = await getAddressInfo(index);
 
       setPublicKey(publicKey);
       setAddress(address);

@@ -11,8 +11,9 @@ export class HWSDK {
     transport.decorateAppAPIMethods(this, ['getPublicKey', 'signMessage'], COTI_SCRAMBLE_KEY);
   }
 
-  // Get COTI public key for a given BIP32 path.
-  async getPublicKey(path, display = true) {
+  // Get COTI public key for a given BIP32 account index.
+  async getPublicKey(index, display = true) {
+    const path = `${BIP32_PATH}/${index}`;
     const paths = bippath.fromString(path).toPathArray();
     const buffer = Buffer.alloc(1 + paths.length * 4);
     buffer[0] = paths.length;
@@ -31,7 +32,8 @@ export class HWSDK {
   }
 
   // Signs a message and retrieves v, r, s given the raw transaction and the BIP32 path.
-  async signMessage(path, messageHex) {
+  async signMessage(index, messageHex) {
+    const path = `${BIP32_PATH}/${index}`;
     const paths = bippath.fromString(path).toPathArray();
     let offset = 0;
     const message = Buffer.from(messageHex, 'hex');

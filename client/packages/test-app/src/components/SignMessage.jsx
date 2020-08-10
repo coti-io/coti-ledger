@@ -52,10 +52,8 @@ const SignMessage = () => {
 
     setLoading(true);
 
-    const path = `${BIP32_PATH}/${index}`;
-
     try {
-      const { v, r, s } = await signMessage(path, message);
+      const { v, r, s } = await signMessage(index, message);
 
       setV(v);
       setR(r);
@@ -78,10 +76,8 @@ const SignMessage = () => {
 
     setLoading(true);
 
-    const path = `${BIP32_PATH}/${index}`;
-
     try {
-      const res = await verifySignature(path, message, r, s);
+      const res = await verifySignature(index, message, r, s);
       if (res) {
         setStatus({
           status: STATUSES.OK,
