@@ -77,33 +77,11 @@
     padding: 1rem;
     margin-top: 1rem;
     margin-bottom: 1rem;
-  }
 
-  .component-notes {
-    background-color: white;
-    border: 1px solid #edf2f9;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
-    padding: 1rem;
-
-    .form-group {
-      margin-bottom: 0;
-
-      small {
-        padding-top: 0;
-        padding-bottom: 0.5rem;
-        line-height: 1.6;
-        color: $text-muted;
+    .input-group {
+      &.note {
+        margin-bottom: 0 !important;
       }
-
-      .form-text {
-        margin-top: 0;
-      }
-    }
-
-    ul,
-    ol {
-      margin-bottom: 0;
     }
   }
 }

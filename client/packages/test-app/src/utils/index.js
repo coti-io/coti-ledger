@@ -72,12 +72,26 @@ const toAddress = publicKey => {
   return `${paddedAddress}${checkSumHex}`;
 };
 
-export const getAddressInfo = async index => {
-  const hw = await connect();
-  const res = await hw.getPublicKey(index);
+const toUserHash = publicKey => {
+  const secp256k1 = new ec('secp256k1');
+
+  const key = secp256k1.keyFromPublic(publicKey, 'hex');
+  const publicXKeyHex = key.getPublic().x.fromRed().toString(16, 2);
+  const publicYKeyHex = key.getPublic().y.fromRed().toString(16, 2);
+
+  return paddingPublicKey(publicXKeyHex, publicYKeyHex);
+};
+
+export const getAddressInfo = async (index, interactive) => {
+  let hw = await connect();
+  let res = await hw.getPublicKey(index, interactive);
 
   const { publicKey } = res;
-  return { publicKey, address: toAddress(publicKey) };
+
+  res = await hw.getUserPublicKey(false);
+  const { publicKey: userPublicKey } = res;
+
+  return { publicKey, userHash: toUserHash(userPublicKey), address: toAddress(publicKey) };
 };
 
 export const signMessage = async (index, message) => {
@@ -89,7 +103,7 @@ export const signMessage = async (index, message) => {
 };
 
 export const verifySignature = async (index, message, r, s) => {
-  const { publicKey } = await getAddressInfo(index);
+  const { publicKey } = await getAddressInfo(index, false);
 
   const secp256k1 = new ec('secp256k1');
   const key = secp256k1.keyFromPublic(publicKey, 'hex');

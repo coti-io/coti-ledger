@@ -12,7 +12,7 @@ export class HWSDK {
   }
 
   // Get COTI public key for a given BIP32 account index.
-  async getPublicKey(index, display = true) {
+  async getPublicKey(index, interactive = true) {
     const path = `${BIP32_PATH}/${index}`;
     const paths = bippath.fromString(path).toPathArray();
     const buffer = Buffer.alloc(1 + paths.length * 4);
@@ -21,7 +21,7 @@ export class HWSDK {
       buffer.writeUInt32BE(element, 1 + 4 * index);
     });
 
-    const response = await this.transport.send(0xe0, 0x02, display, 0x00, buffer);
+    const response = await this.transport.send(0xe0, 0x02, interactive, 0x00, buffer);
     const result = {};
     const publicKeyLength = response[0];
     const addressLength = response[1 + publicKeyLength];

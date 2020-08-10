@@ -11,7 +11,9 @@ import CopyToClipboard from './CopyToClipboard';
 const GetAddress = () => {
   const [loading, setLoading] = useState(false);
   const [index, setIndex] = useState(0);
+  const [interactive, setInteractive] = useState(false);
   const [publicKey, setPublicKey] = useState('');
+  const [userHash, setUserHash] = useState('');
   const [address, setAddress] = useState('');
   const [error, setError] = useState({});
 
@@ -22,15 +24,23 @@ const GetAddress = () => {
     setIndex(value);
   };
 
+  const onChangeInteractive = ({ target }) => {
+    const element = target;
+    const { checked } = element;
+
+    setInteractive(checked);
+  };
+
   const onSubmit = async event => {
     event.preventDefault();
 
     setLoading(true);
 
     try {
-      const { publicKey, address } = await getAddressInfo(index);
+      const { publicKey, userHash, address } = await getAddressInfo(index, interactive);
 
       setPublicKey(publicKey);
+      setUserHash(userHash);
       setAddress(address);
     } catch (err) {
       console.error(`${err.name}: ${err.message}`);
@@ -61,6 +71,14 @@ const GetAddress = () => {
           <Col md={9}>
             <Form.Control className="form-control" type="number" value={index} onChange={onChangeIndex} />
             <small className="form-text">The index to derive the ${BIP32_PATH}/index BIP32 path</small>
+          </Col>
+        </FormGroup>
+
+        <FormGroup as={Row}>
+          <Col md={{ span: 9, offset: 2 }}>
+            <InputGroup className="mb-3">
+              <Form.Check type="checkbox" value={interactive} label="Interactive" onChange={onChangeInteractive} />
+            </InputGroup>
           </Col>
         </FormGroup>
 
@@ -95,6 +113,21 @@ const GetAddress = () => {
                 <CopyToClipboard text={address} />
               </InputGroup.Append>
             </InputGroup>
+          </Col>
+        </FormGroup>
+
+        <FormGroup as={Row}>
+          <Col md={2}>
+            <FormLabel>User Hash</FormLabel>
+          </Col>
+          <Col md={9}>
+            <InputGroup className="mb-3 note">
+              <FormControl className="key" as="textarea" rows="3" value={userHash} readOnly={true} />
+              <InputGroup.Append>
+                <CopyToClipboard text={userHash} />
+              </InputGroup.Append>
+            </InputGroup>
+            <small className="form-text">The public key corresponding to the ${BIP32_PATH} BIP32 path</small>
           </Col>
         </FormGroup>
       </Form>
