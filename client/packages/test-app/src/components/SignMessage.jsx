@@ -197,7 +197,7 @@ const SignMessage = () => {
       </Form>
 
       <Form className="component-result" onSubmit={onVerifySubmit}>
-        <h5>Verification</h5>
+        <h5>External Verification</h5>
 
         <FormGroup as={Row}>
           <Col md={2}>
