@@ -37,13 +37,15 @@ brew install python3 libusb
 pip3 install ledgerblue hidapi
 ```
 
-After you've built the application, you can use `ledgerblue` to load it:
+After you've built the application, you can generate an installation script via:
 
 ```bash
-python3 -m ledgerblue.loadApp --curve secp256k1 --path "44'/6779'" --appFlags 0x40 --tlv --targetId 0x31100004 --targetVersion="1.6.0" --delete --fileName bin/app.hex --appName "COTI" --appVersion 1.0.0
+make load-script
 ```
 
-In order To uninstall the application:
+Afterwards, you can run the generated `load.sh` in order to install the application.
+
+You can uninstall the application via:
 
 ```bash
 python3 -m ledgerblue.deleteApp --targetId 0x31100004 --appName "COTI"
