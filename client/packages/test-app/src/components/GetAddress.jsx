@@ -70,7 +70,7 @@ const GetAddress = () => {
           </Col>
           <Col md={9}>
             <Form.Control className="form-control" type="number" value={index} onChange={onChangeIndex} />
-            <small className="form-text">The index to derive the ${BIP32_PATH}/index BIP32 path</small>
+            <small className="form-text">The index to derive the {BIP32_PATH}/index BIP32 path</small>
           </Col>
         </FormGroup>
 
@@ -127,7 +127,7 @@ const GetAddress = () => {
                 <CopyToClipboard text={userHash} />
               </InputGroup.Append>
             </InputGroup>
-            <small className="form-text">The public key corresponding to the ${BIP32_PATH} BIP32 path</small>
+            <small className="form-text">The public key corresponding to the {BIP32_PATH} BIP32 path</small>
           </Col>
         </FormGroup>
       </Form>
