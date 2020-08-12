@@ -1,0 +1,42 @@
+header {
+  margin: 0 auto 1.2rem auto;
+  max-width: 80rem;
+
+  .header-body {
+    padding-top: 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e3ebf6;
+
+    .col-md-auto {
+      padding-right: 0;
+    }
+  }
+
+  .header-title {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: 0;
+  }
+
+  .header-version {
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #95aac9;
+  }
+
+  .avatar {
+    font-size: 1rem;
+    position: relative;
+    display: inline-block;
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    -o-object-fit: cover;
+    object-fit: cover;
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@coti/hw-sdk",
+  "version": "0.1.0",
+  "description": "COTI Ledger app client SDK",
+  "private": true,
+  "main": "src/index.js",
+  "dependencies": {
+    "@ledgerhq/hw-transport": "^5.21.0",
+    "bip32-path": "^0.4.2"
+  }
+}

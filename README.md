@@ -1,47 +1,56 @@
-# Ledger boilerplate app
+# COTI Ledger App
 
 ## Overview
-This app is a boilerplate for a Nano S/X app.
-It does very little, and just expose a minimal API (get_app_config, get_address). 
 
-## Building and installing
-To build and install the app on your Ledger Nano S you must set up the Ledger Nano S build environments. Please follow the Getting Started instructions at [here](https://ledger.readthedocs.io/en/latest/userspace/getting_started.html).
+This is an alpha version of the Ledger Nano S COTI app.
 
-If you don't want to setup a global environnment, you can also setup one just for this app by sourcing `prepare-devenv.sh` with the right target (`s` or `x`).
+## Building and Installing
 
-install prerequisite and switch to a Nano X dev-env:
+Make sure that Docker is installed and build the `ledger-app-builder:1.6.0` container:
 
 ```bash
-sudo apt install python3-venv python3-dev libudev-dev libusb-1.0-0-dev
-
-# (x or s, depending on your device)
-source prepare-devenv.sh x 
+docker build -t ledger-app-builder:1.6.0 .
 ```
 
-Compile and load the app onto the device:
+Compile the app:
+
 ```bash
-make load
+$ docker run --rm -ti -v "$(realpath .):/coti" ledger-app-builder:1.6.0
+root@d83f688268b3:/coti# cd app
+root@d83f688268b3:/coti# make
 ```
 
-Refresh the repo (required after Makefile edits):
+Make sure to install `coreutils` to have the `realpath` command available:
+
 ```bash
-make clean
+brew install coreutils
 ```
 
-Remove the app from the device:
+## Installing the Application
+
+In order to install/uninstall the application, you need to install the `ledgerblue` python module and additional dependencies:
+
 ```bash
-make delete
+xcode-select --install
+
+brew install python3 libusb
+pip3 install ledgerblue hidapi
 ```
 
+After you've built the application, you can generate an installation script via:
 
-## Example of Ledger wallet functionality
-
-Test functionality:
 ```bash
-# (x or s, depending on your device)
-source prepare-devenv.sh x
-python test_example.py --account_number 12345
+make load-script
+```
+
+Afterwards, you can run the generated `load.sh` in order to install the application.
+
+You can uninstall the application via:
+
+```bash
+python3 -m ledgerblue.deleteApp --targetId 0x31100004 --appName "COTI"
 ```
 
 ## Documentation
-This follows the specification available in the [`api.asc`](https://github.com/LedgerHQ/ledger-app-boilerplate/blob/master/doc/api.asc).
+
+This follows the specification available in the [`api.md`](app/doc/api.md).
