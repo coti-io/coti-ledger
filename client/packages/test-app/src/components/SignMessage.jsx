@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button, FormGroup, FormLabel, FormControl, InputGroup } from 'react-bootstrap';
 
+import { keccak256 } from 'js-sha3';
+import validator from 'validator';
 import { BIP32_PATH } from '@coti/hw-sdk';
 
 import { signMessage, signUserMessage, verifySignature, verifyUserSignature, byteArrayToHexString } from '../utils';
-
-import { keccak256 } from 'js-sha3';
 
 import ErrorModal from './ErrorModal';
 import Loader from './Loader';
@@ -23,8 +23,8 @@ const SignMessage = () => {
   const [index, setIndex] = useState(0);
   const [indexEnabled, setIndexEnabled] = useState(true);
   const [userPublicKey, setUserPublicKey] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageHash, setMessageHash] = useState('');
+  const [messageHex, setMessageHex] = useState('');
+  const [messageHexHash, setMessageHexHash] = useState('');
   const [v, setV] = useState('');
   const [r, setR] = useState('');
   const [s, setS] = useState('');
@@ -33,6 +33,23 @@ const SignMessage = () => {
     message: ''
   });
   const [error, setError] = useState({});
+
+  const isHexData = value => {
+    if (value.length % 2 !== 0) {
+      return false;
+    }
+
+    let hex = false;
+    let tmp = value;
+    if (tmp) {
+      if (tmp.startsWith('0x')) {
+        tmp = tmp.slice(2) || '0';
+      }
+      hex = validator.isHexadecimal(tmp);
+    }
+
+    return hex;
+  };
 
   const onChangeIndex = ({ target }) => {
     const element = target;
@@ -49,16 +66,31 @@ const SignMessage = () => {
     setUserPublicKey(checked);
   };
 
-  const onChangeMessage = ({ target }) => {
+  const onChangeMessageHex = ({ target }) => {
     const element = target;
     const { value } = element;
 
-    setMessage(value);
-    setMessageHash(byteArrayToHexString(keccak256.digest(value)));
+    setMessageHex(value);
+
+    if (isHexData(value)) {
+      setMessageHexHash(byteArrayToHexString(keccak256.digest(Buffer.from(value, 'hex'))));
+    } else {
+      setMessageHexHash('');
+    }
   };
 
   const onSubmit = async event => {
     event.preventDefault();
+
+    if (!isHexData(messageHex)) {
+      setError({
+        show: true,
+        title: 'Invalid input',
+        message: 'Not a valid hexadecimal data'
+      });
+
+      return;
+    }
 
     setLoading(true);
 
@@ -68,7 +100,7 @@ const SignMessage = () => {
         message: ''
       });
 
-      const { v, r, s } = userPublicKey ? await signUserMessage(message) : await signMessage(index, message);
+      const { v, r, s } = userPublicKey ? await signUserMessage(messageHex) : await signMessage(index, messageHex);
 
       setV(v);
       setR(r);
@@ -93,8 +125,8 @@ const SignMessage = () => {
 
     try {
       const res = userPublicKey
-        ? await verifyUserSignature(message, r, s)
-        : await verifySignature(index, message, r, s);
+        ? await verifyUserSignature(messageHex, r, s)
+        : await verifySignature(index, messageHex, r, s);
       if (res) {
         setStatus({
           status: STATUSES.OK,
@@ -126,7 +158,7 @@ const SignMessage = () => {
     }
   };
 
-  const { show, title, message: errMsg } = error;
+  const { show, title, message } = error;
 
   return (
     <>
@@ -166,11 +198,17 @@ const SignMessage = () => {
 
         <FormGroup as={Row}>
           <Col md={2}>
-            <FormLabel>Message</FormLabel>
+            <FormLabel>Message Hex</FormLabel>
           </Col>
           <Col md={9}>
-            <Form.Control className="form-control" as="textarea" rows="3" value={message} onChange={onChangeMessage} />
-            <small className="form-text">The non-hashed message to sign</small>
+            <Form.Control
+              className="form-control"
+              as="textarea"
+              rows="3"
+              value={messageHex}
+              onChange={onChangeMessageHex}
+            />
+            <small className="form-text">The non-hashed message hex to sign</small>
           </Col>
         </FormGroup>
 
@@ -179,7 +217,7 @@ const SignMessage = () => {
             <FormLabel>Message SHA3</FormLabel>
           </Col>
           <Col md={9}>
-            <Form.Control className="form-control bytes" type="text" value={messageHash} readOnly={true} />
+            <Form.Control className="form-control bytes" type="text" value={messageHexHash} readOnly={true} />
           </Col>
         </FormGroup>
 
@@ -249,7 +287,7 @@ const SignMessage = () => {
         <Button type="submit">Verify</Button>
       </Form>
 
-      <ErrorModal show={show} title={title} message={errMsg} onHide={() => setError({})} />
+      <ErrorModal show={show} title={title} message={message} onHide={() => setError({})} />
     </>
   );
 };

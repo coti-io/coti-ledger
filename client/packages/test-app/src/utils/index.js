@@ -103,35 +103,33 @@ export const getAddressInfo = async (index, interactive) => {
   return { publicKey, userHash: toUserHash(userPublicKey), address: toAddress(publicKey) };
 };
 
-export const signMessage = async (index, message) => {
+export const signMessage = async (index, messageHex) => {
   const hw = await connect();
-  const messageHex = Buffer.from(message).toString('hex');
   const res = await hw.signMessage(index, messageHex);
 
   return { v: res.v, r: res.r, s: res.s };
 };
 
-export const signUserMessage = async message => {
+export const signUserMessage = async messageHex => {
   const hw = await connect();
-  const messageHex = Buffer.from(message).toString('hex');
   const res = await hw.signUserMessage(messageHex);
 
   return { v: res.v, r: res.r, s: res.s };
 };
 
-const verifyPublicKeySignature = (publicKey, message, r, s) => {
+const verifyPublicKeySignature = (publicKey, messageHex, r, s) => {
   const secp256k1 = new ec('secp256k1');
   const key = secp256k1.keyFromPublic(publicKey, 'hex');
   const signature = { r, s };
-  const messageHash = keccak256.digest(message);
+  const messageHash = keccak256.digest(Buffer.from(messageHex, 'hex'));
 
   return key.verify(messageHash, signature);
 };
 
-export const verifySignature = async (index, message, r, s) => {
+export const verifySignature = async (index, messageHex, r, s) => {
   const publicKey = await getPublicKey(index, false);
 
-  return verifyPublicKeySignature(publicKey, message, r, s);
+  return verifyPublicKeySignature(publicKey, messageHex, r, s);
 };
 
 export const verifyUserSignature = async (message, r, s) => {
