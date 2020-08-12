@@ -82,14 +82,23 @@ const toUserHash = publicKey => {
   return paddingPublicKey(publicXKeyHex, publicYKeyHex);
 };
 
+const getPublicKey = async (index, interactive) => {
+  const hw = await connect();
+
+  const res = await hw.getPublicKey(index, interactive);
+  return res.publicKey;
+};
+
+const getUserPublicKey = async interactive => {
+  const hw = await connect();
+
+  const res = await hw.getUserPublicKey(false);
+  return res.publicKey;
+};
+
 export const getAddressInfo = async (index, interactive) => {
-  let hw = await connect();
-  let res = await hw.getPublicKey(index, interactive);
-
-  const { publicKey } = res;
-
-  res = await hw.getUserPublicKey(false);
-  const { publicKey: userPublicKey } = res;
+  const publicKey = await getPublicKey(index, interactive);
+  const userPublicKey = await getUserPublicKey(false);
 
   return { publicKey, userHash: toUserHash(userPublicKey), address: toAddress(publicKey) };
 };
@@ -102,15 +111,33 @@ export const signMessage = async (index, message) => {
   return { v: res.v, r: res.r, s: res.s };
 };
 
-export const verifySignature = async (index, message, r, s) => {
-  const { publicKey } = await getAddressInfo(index, false);
+export const signUserMessage = async message => {
+  const hw = await connect();
+  const messageHex = Buffer.from(message).toString('hex');
+  const res = await hw.signUserMessage(messageHex);
 
+  return { v: res.v, r: res.r, s: res.s };
+};
+
+const verifyPublicKeySignature = (publicKey, message, r, s) => {
   const secp256k1 = new ec('secp256k1');
   const key = secp256k1.keyFromPublic(publicKey, 'hex');
   const signature = { r, s };
   const messageHash = keccak256.digest(message);
 
   return key.verify(messageHash, signature);
+};
+
+export const verifySignature = async (index, message, r, s) => {
+  const publicKey = await getPublicKey(index, false);
+
+  return verifyPublicKeySignature(publicKey, message, r, s);
+};
+
+export const verifyUserSignature = async (message, r, s) => {
+  const userPublicKey = await getUserPublicKey(false);
+
+  return verifyPublicKeySignature(userPublicKey, message, r, s);
 };
 
 listen(log => console.log(`${log.type}: ${log.message}`));

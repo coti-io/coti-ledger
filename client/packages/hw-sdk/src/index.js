@@ -38,7 +38,10 @@ export class HWSDK {
 
   // Signs a message and retrieves v, r, s given the raw transaction and the BIP32 path.
   async signMessage(index, messageHex) {
-    const path = `${BIP32_PATH}/${index}`;
+    let path = BIP32_PATH;
+    if (index !== undefined) {
+      path = `${path}/${index}`;
+    }
     const paths = bippath.fromString(path).toPathArray();
     let offset = 0;
     const message = Buffer.from(messageHex, 'hex');
@@ -71,5 +74,10 @@ export class HWSDK {
     const s = response.slice(1 + 32, 1 + 32 + 32).toString('hex');
 
     return { v, r, s };
+  }
+
+  // Signs a message and retrieves v, r, s given the raw transaction and the BIP32 path.
+  async signUserMessage(messageHex) {
+    return this.signMessage(undefined, messageHex);
   }
 }

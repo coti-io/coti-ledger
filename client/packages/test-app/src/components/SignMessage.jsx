@@ -3,7 +3,7 @@ import { Form, Row, Col, Button, FormGroup, FormLabel, FormControl, InputGroup }
 
 import { BIP32_PATH } from '@coti/hw-sdk';
 
-import { signMessage, verifySignature, byteArrayToHexString } from '../utils';
+import { signMessage, signUserMessage, verifySignature, verifyUserSignature, byteArrayToHexString } from '../utils';
 
 import { keccak256 } from 'js-sha3';
 
@@ -21,6 +21,8 @@ const STATUSES = {
 const SignMessage = () => {
   const [loading, setLoading] = useState(false);
   const [index, setIndex] = useState(0);
+  const [indexEnabled, setIndexEnabled] = useState(true);
+  const [userPublicKey, setUserPublicKey] = useState(false);
   const [message, setMessage] = useState('');
   const [messageHash, setMessageHash] = useState('');
   const [v, setV] = useState('');
@@ -39,6 +41,14 @@ const SignMessage = () => {
     setIndex(value);
   };
 
+  const onChangeUserPublicKey = ({ target }) => {
+    const element = target;
+    const { checked } = element;
+
+    setIndexEnabled(!checked);
+    setUserPublicKey(checked);
+  };
+
   const onChangeMessage = ({ target }) => {
     const element = target;
     const { value } = element;
@@ -53,7 +63,12 @@ const SignMessage = () => {
     setLoading(true);
 
     try {
-      const { v, r, s } = await signMessage(index, message);
+      setStatus({
+        status: STATUSES.UNDEFINED,
+        message: ''
+      });
+
+      const { v, r, s } = userPublicKey ? await signUserMessage(message) : await signMessage(index, message);
 
       setV(v);
       setR(r);
@@ -77,7 +92,9 @@ const SignMessage = () => {
     setLoading(true);
 
     try {
-      const res = await verifySignature(index, message, r, s);
+      const res = userPublicKey
+        ? await verifyUserSignature(message, r, s)
+        : await verifySignature(index, message, r, s);
       if (res) {
         setStatus({
           status: STATUSES.OK,
@@ -123,8 +140,27 @@ const SignMessage = () => {
             <FormLabel>Address Index</FormLabel>
           </Col>
           <Col md={9}>
-            <Form.Control className="form-control" type="number" value={index} onChange={onChangeIndex} />
-            <small className="form-text">The index to derive the ${BIP32_PATH}/index BIP32 path</small>
+            <Form.Control
+              className="form-control"
+              type="number"
+              value={index}
+              readOnly={!indexEnabled}
+              onChange={onChangeIndex}
+            />
+            <small className="form-text">The index to derive the {BIP32_PATH}/index BIP32 path</small>
+          </Col>
+        </FormGroup>
+
+        <FormGroup as={Row}>
+          <Col md={{ span: 9, offset: 2 }}>
+            <InputGroup className="mb-3">
+              <Form.Check
+                type="checkbox"
+                value={userPublicKey}
+                label="Sign with user hash public key"
+                onChange={onChangeUserPublicKey}
+              />
+            </InputGroup>
           </Col>
         </FormGroup>
 
@@ -147,7 +183,7 @@ const SignMessage = () => {
           </Col>
         </FormGroup>
 
-        <Button type="submit">Submit</Button>
+        <Button type="submit">Sign</Button>
       </Form>
 
       <Form className="component-result">
