@@ -221,7 +221,7 @@ const SignMessage = () => {
           </Col>
         </FormGroup>
 
-        <Button type="submit">Sign</Button>
+        <Button type="submit">Sign Message</Button>
       </Form>
 
       <Form className="component-result">
@@ -284,7 +284,7 @@ const SignMessage = () => {
           </Col>
         </FormGroup>
 
-        <Button type="submit">Verify</Button>
+        <Button type="submit">Verify Signature</Button>
       </Form>
 
       <ErrorModal show={show} title={title} message={message} onHide={() => setError({})} />
