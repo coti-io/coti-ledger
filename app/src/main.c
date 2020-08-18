@@ -31,10 +31,6 @@
 
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
-void ui_idle(void);
-
-uint32_t set_result_get_public_key(void);
-
 tmp_ctx_t tmp_ctx;
 strings_t strings;
 
