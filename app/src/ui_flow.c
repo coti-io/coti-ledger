@@ -25,7 +25,7 @@ UX_FLOW_DEF_VALID(
         &C_icon_dashboard_x,
         "Quit",
     });
-const ux_flow_step_t * const ux_idle_flow[] ={
+const ux_flow_step_t *const ux_idle_flow[] = {
     &ux_idle_flow_1_step,
     &ux_idle_flow_2_step,
     &ux_idle_flow_3_step,

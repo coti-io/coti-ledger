@@ -35,7 +35,7 @@ UX_FLOW_DEF_VALID(
         "Reject",
     });
 
-const ux_flow_step_t * const ux_display_public_flow[] ={
+const ux_flow_step_t *const ux_display_public_flow[] = {
     &ux_display_public_flow_1_step,
     &ux_display_public_flow_2_step,
     &ux_display_public_flow_3_step,

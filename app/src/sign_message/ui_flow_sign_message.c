@@ -35,7 +35,7 @@ UX_FLOW_DEF_VALID(
         "signature",
     });
 
-const ux_flow_step_t * const ux_sign_flow[] ={
+const ux_flow_step_t *const ux_sign_flow[] = {
     &ux_sign_flow_1_step,
     &ux_sign_flow_2_step,
     &ux_sign_flow_3_step,

@@ -1,7 +1,8 @@
 #include "shared_context.h"
 #include "ui_callbacks.h"
 
-unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e) {
+unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
+{
     uint8_t private_key_data[32];
     uint8_t signature[100];
     uint8_t signature_length;
@@ -18,14 +19,16 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e) {
     io_seproxyhal_io_heartbeat();
     signature_length =
         cx_ecdsa_sign(&private_key, CX_RND_RFC6979 | CX_LAST, CX_SHA256,
-            tmp_ctx.message_signing_context.hash,
-            sizeof(tmp_ctx.message_signing_context.hash), signature, sizeof(signature), &info);
+                      tmp_ctx.message_signing_context.hash,
+                      sizeof(tmp_ctx.message_signing_context.hash), signature, sizeof(signature), &info);
     os_memset(&private_key, 0, sizeof(private_key));
     G_io_apdu_buffer[0] = 27;
-    if (info & CX_ECCINFO_PARITY_ODD) {
+    if (info & CX_ECCINFO_PARITY_ODD)
+    {
         G_io_apdu_buffer[0]++;
     }
-    if (info & CX_ECCINFO_xGTn) {
+    if (info & CX_ECCINFO_xGTn)
+    {
         G_io_apdu_buffer[0] += 2;
     }
     format_signature_out(signature);
@@ -40,7 +43,8 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e) {
     return 0; // do not redraw the widget
 }
 
-unsigned int io_seproxyhal_touch_sign_message_cancel(const bagl_element_t *e) {
+unsigned int io_seproxyhal_touch_sign_message_cancel(const bagl_element_t *e)
+{
     reset_app_context();
     G_io_apdu_buffer[0] = 0x69;
     G_io_apdu_buffer[1] = 0x85;
