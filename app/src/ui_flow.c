@@ -3,21 +3,21 @@
 
 #ifdef HAVE_UX_FLOW
 
-UX_FLOW_DEF_NOCB(
+UX_STEP_NOCB(
     ux_idle_flow_1_step,
     nn,
     {
         "Application",
         "is ready",
     });
-UX_FLOW_DEF_NOCB(
+UX_STEP_NOCB(
     ux_idle_flow_2_step,
     bn,
     {
         "Version",
         APPVERSION,
     });
-UX_FLOW_DEF_VALID(
+UX_STEP_CB(
     ux_idle_flow_3_step,
     pb,
     os_sched_exit(-1),

@@ -24,8 +24,6 @@
 #include "ui_flow.h"
 #endif
 
-#include <os_io_seproxyhal.h>
-
 #include "glyphs.h"
 #include "utils.h"
 
@@ -280,7 +278,7 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
     END_TRY;
 }
 
-void sample_main(void)
+void coti_main(void)
 {
     unsigned int rx = 0;
     unsigned int tx = 0;
@@ -451,7 +449,7 @@ __attribute__((section(".boot"))) int main(int argc, char *argv[])
                 BLE_power(0, NULL);
                 BLE_power(1, "Nano X");
 #endif // HAVE_BLE
-                sample_main();
+                coti_main();
             }
             CATCH(EXCEPTION_IO_RESET)
             {
