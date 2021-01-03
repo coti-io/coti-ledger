@@ -225,7 +225,7 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
         {
             if (G_io_apdu_buffer[OFFSET_CLA] != CLA)
             {
-                THROW(0x6E00);
+                THROW(CLA_NOT_SUPPORTED);
             }
 
             switch (G_io_apdu_buffer[OFFSET_INS])
@@ -239,7 +239,7 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
                 break;
 
             default:
-                THROW(0x6D00);
+                THROW(INS_NOT_SUPPORTED);
                 break;
             }
         }
@@ -308,8 +308,14 @@ void coti_main(void)
                 // bootloader configuration
                 if (rx == 0)
                 {
-                    THROW(0x6982);
+                    THROW(SECURITY_STATUS_NOT_SATISFIED);
                 }
+
+                if (os_global_pin_is_validated() == BOLOS_FALSE) 
+                {
+                    THROW(DEVICE_PIN_SCREEN);
+                }
+
                 PRINTF("New APDU received:\n%.*H\n", rx, G_io_apdu_buffer);
 
                 handleApdu(&flags, &tx);

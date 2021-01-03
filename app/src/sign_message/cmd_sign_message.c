@@ -30,7 +30,7 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
             (tmp_ctx.message_signing_context.path_length > MAX_BIP32_PATH))
         {
             PRINTF("Invalid path\n");
-            THROW(0x6a80);
+            THROW(INVALID_DATA);
         }
 
         work_buffer++;
@@ -40,7 +40,7 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
             if (data_length < 4)
             {
                 PRINTF("Invalid data\n");
-                THROW(0x6a80);
+                THROW(INVALID_DATA);
             }
 
             tmp_ctx.message_signing_context.bip32_path[i] = U4BE(work_buffer, 0);
@@ -51,7 +51,7 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
         if (data_length < 4)
         {
             PRINTF("Invalid data\n");
-            THROW(0x6a80);
+            THROW(INVALID_DATA);
         }
 
         tmp_ctx.message_signing_context.remaining_length = U4BE(work_buffer, 0);
@@ -62,12 +62,12 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
     }
     else if (p1 != P1_MORE)
     {
-        THROW(0x6B00);
+        THROW(INCORRECT_P1_P2);
     }
 
     if (p2 != 0)
     {
-        THROW(0x6B00);
+        THROW(INCORRECT_P1_P2);
     }
 
     if ((p1 == P1_MORE) && (app_state != APP_STATE_SIGNING_MESSAGE))
@@ -78,7 +78,7 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
 
     if (data_length > tmp_ctx.message_signing_context.remaining_length)
     {
-        THROW(0x6A80);
+        THROW(INVALID_DATA);
     }
 
     cx_hash((cx_hash_t *)&sha3, 0, work_buffer, data_length, NULL, 0);
@@ -96,6 +96,6 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
     }
     else
     {
-        THROW(0x9000);
+        THROW(OK);
     }
 }

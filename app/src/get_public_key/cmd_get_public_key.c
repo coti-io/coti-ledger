@@ -21,17 +21,17 @@ void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t
     if ((bip32_path_length < 0x01) || (bip32_path_length > MAX_BIP32_PATH))
     {
         PRINTF("Invalid path\n");
-        THROW(0x6a80);
+        THROW(INVALID_DATA);
     }
 
     if ((p1 != P1_CONFIRM) && (p1 != P1_NON_CONFIRM))
     {
-        THROW(0x6B00);
+        THROW(INVALID_PARAMETER);
     }
 
     if (p2 != 0)
     {
-        THROW(0x6B00);
+        THROW(INVALID_PARAMETER);
     }
 
     for (i = 0; i < bip32_path_length; i++)
@@ -52,7 +52,7 @@ void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t
     if (p1 == P1_NON_CONFIRM)
     {
         *tx = set_result_get_public_key();
-        THROW(0x9000);
+        THROW(OK);
     }
     else
     {

@@ -20,5 +20,16 @@
 #define OFFSET_LC 4
 #define OFFSET_CDATA 5
 
+// status words
+#define INCORRECT_LENGTH 0x6700
+#define SECURITY_STATUS_NOT_SATISFIED 0x6982
+#define INVALID_DATA 0x6A80
+#define DEVICE_PIN_SCREEN 0x63c0
+#define INCORRECT_P1_P2 0x6B00
+#define INS_NOT_SUPPORTED 0x6D00
+#define CLA_NOT_SUPPORTED 0x6E00
+#define TECHNICAL_PROBLEM 0x6F00
+#define OK 0x9000 
+
 void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t data_length, unsigned int *flags, unsigned int *tx);
 void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t data_length, unsigned int *flags, unsigned int *tx);
