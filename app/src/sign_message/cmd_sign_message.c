@@ -9,6 +9,19 @@
 void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t data_length, unsigned int *flags, unsigned int *tx)
 {
     UNUSED(tx);
+
+    if ((p1 != P1_FIRST) && (p1 != P1_MORE))
+    {
+        PRINTF("Incorrect p1\n");
+        THROW(INCORRECT_P1_P2);
+    }
+
+    if ((p2 != P2_HASHED) && (p2 != P2_NOT_HASHED))
+    {
+        PRINTF("Incorrect p2\n");
+        THROW(INCORRECT_P1_P2);
+    }
+
     if (p1 == P1_FIRST)
     {
         uint32_t i;
@@ -57,19 +70,13 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
         tmp_ctx.message_signing_context.remaining_length = U4BE(work_buffer, 0);
         work_buffer += 4;
         data_length -= 4;
-
-        cx_keccak_init(&sha3, 256);
-    }
-    else if (p1 != P1_MORE)
-    {
-        PRINTF("Incorrect p1\n");
-        THROW(INCORRECT_P1_P2);
-    }
-
-    if (p2 != 0)
-    {
-        PRINTF("Incorrect p2\n");
-        THROW(INCORRECT_P1_P2);
+        if(p2 == P2_NOT_HASHED) 
+        {
+            cx_keccak_init(&sha3, 256);
+        } else if(tmp_ctx.message_signing_context.remaining_length != 32) {
+            PRINTF("Invalid data\n");
+            THROW(INVALID_DATA);
+        }
     }
 
     if ((p1 == P1_MORE) && (app_state != APP_STATE_SIGNING_MESSAGE))
@@ -82,13 +89,26 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
     {
         THROW(INVALID_DATA);
     }
+    
+    if (p2 == P2_NOT_HASHED) 
+    {
+        cx_hash((cx_hash_t *)&sha3, 0, work_buffer, data_length, NULL, 0);
+    }
 
-    cx_hash((cx_hash_t *)&sha3, 0, work_buffer, data_length, NULL, 0);
     tmp_ctx.message_signing_context.remaining_length -= data_length;
     if (tmp_ctx.message_signing_context.remaining_length == 0)
     {
+        if (p2 == P2_NOT_HASHED) 
+        {
         cx_hash((cx_hash_t *)&sha3, CX_LAST, work_buffer, 0, tmp_ctx.message_signing_context.hash,
                 sizeof(tmp_ctx.message_signing_context.hash));
+        } else 
+        {
+            for(int i = 0; i < sizeof(tmp_ctx.message_signing_context.hash); i++)
+            {
+                tmp_ctx.message_signing_context.hash[i] = work_buffer[i];
+            }      
+        }
 
         array_hexstr(strings.tmp.tmp, &tmp_ctx.message_signing_context.hash, sizeof(tmp_ctx.message_signing_context.hash));
 

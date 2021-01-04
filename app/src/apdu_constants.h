@@ -10,6 +10,8 @@
 #define P1_NON_CONFIRM 0x00
 #define P1_FIRST 0x00
 #define P1_MORE 0x80
+#define P2_HASHED 0x01
+#define P2_NOT_HASHED 0x00
 
 #define COMMON_CLA 0xB0
 
