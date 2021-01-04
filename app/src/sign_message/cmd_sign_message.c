@@ -16,7 +16,7 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
         if (data_length < 1)
         {
             PRINTF("Invalid data\n");
-            THROW(0x6a80);
+            THROW(INVALID_DATA);
         }
 
         if (app_state != APP_STATE_IDLE)
@@ -62,18 +62,20 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
     }
     else if (p1 != P1_MORE)
     {
+        PRINTF("Incorrect p1\n");
         THROW(INCORRECT_P1_P2);
     }
 
     if (p2 != 0)
     {
+        PRINTF("Incorrect p2\n");
         THROW(INCORRECT_P1_P2);
     }
 
     if ((p1 == P1_MORE) && (app_state != APP_STATE_SIGNING_MESSAGE))
     {
         PRINTF("Signature not initialized\n");
-        THROW(0x6985);
+        THROW(CONDITIONS_OF_USE_NOT_SATISFIED);
     }
 
     if (data_length > tmp_ctx.message_signing_context.remaining_length)

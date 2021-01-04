@@ -248,7 +248,8 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
             THROW(EXCEPTION_IO_RESET);
         }
         CATCH_OTHER(e)
-        {
+        { 
+            PRINTF("Exception %x\n", e);
             switch (e & 0xF000)
             {
             case 0x6000:
@@ -268,7 +269,7 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
             }
             // Unexpected exception => report
             G_io_apdu_buffer[*tx] = sw >> 8;
-            G_io_apdu_buffer[*tx + 1] = sw;
+            G_io_apdu_buffer[*tx + 1] = sw & 0xFF;
             *tx += 2;
         }
         FINALLY
@@ -311,11 +312,6 @@ void coti_main(void)
                     THROW(SECURITY_STATUS_NOT_SATISFIED);
                 }
 
-                if (os_global_pin_is_validated() == BOLOS_FALSE) 
-                {
-                    THROW(DEVICE_PIN_SCREEN);
-                }
-
                 PRINTF("New APDU received:\n%.*H\n", rx, G_io_apdu_buffer);
 
                 handleApdu(&flags, &tx);
@@ -349,7 +345,7 @@ void coti_main(void)
                 }
                 // Unexpected exception => report
                 G_io_apdu_buffer[tx] = sw >> 8;
-                G_io_apdu_buffer[tx + 1] = sw;
+                G_io_apdu_buffer[tx + 1] = sw & 0xFF;
                 tx += 2;
             }
             FINALLY
