@@ -1,5 +1,6 @@
 #include "shared_context.h"
 #include "ui_callbacks.h"
+#include "apdu_constants.h"
 
 unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
 {
@@ -33,8 +34,9 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
     }
     format_signature_out(signature);
     tx = 65;
-    G_io_apdu_buffer[tx++] = 0x90;
-    G_io_apdu_buffer[tx++] = 0x00;
+    unsigned short sw = OK;
+    G_io_apdu_buffer[tx++] = sw >> 8;
+    G_io_apdu_buffer[tx++] = sw & 0xFF;
     reset_app_context();
     // Send back the response, do not restart the event loop
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, tx);
@@ -46,8 +48,9 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
 unsigned int io_seproxyhal_touch_sign_message_cancel(const bagl_element_t *e)
 {
     reset_app_context();
-    G_io_apdu_buffer[0] = 0x69;
-    G_io_apdu_buffer[1] = 0x85;
+    unsigned short sw = REJECTED_BY_USER;
+    G_io_apdu_buffer[0] = sw >> 8;
+    G_io_apdu_buffer[1] = sw & 0xFF;
     // Send back the response, do not restart the event loop
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, 2);
     // Display back the original UX

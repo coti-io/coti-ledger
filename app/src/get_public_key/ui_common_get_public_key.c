@@ -1,12 +1,14 @@
 #include "shared_context.h"
 #include "get_public_key.h"
 #include "ui_callbacks.h"
+#include "apdu_constants.h"
 
 unsigned int io_seproxyhal_touch_address_ok(const bagl_element_t *e)
 {
     uint32_t tx = set_result_get_public_key();
-    G_io_apdu_buffer[tx++] = 0x90;
-    G_io_apdu_buffer[tx++] = 0x00;
+    unsigned short sw = OK;
+    G_io_apdu_buffer[tx++] = sw >> 8;
+    G_io_apdu_buffer[tx++] = sw & 0xFF;
     reset_app_context();
     // Send back the response, do not restart the event loop
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, tx);
@@ -17,8 +19,9 @@ unsigned int io_seproxyhal_touch_address_ok(const bagl_element_t *e)
 
 unsigned int io_seproxyhal_touch_address_cancel(const bagl_element_t *e)
 {
-    G_io_apdu_buffer[0] = 0x69;
-    G_io_apdu_buffer[1] = 0x85;
+    unsigned short sw = REJECTED_BY_USER;
+    G_io_apdu_buffer[0] = sw >> 8;
+    G_io_apdu_buffer[1] = sw & 0xFF;
     reset_app_context();
     // Send back the response, do not restart the event loop
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, 2);

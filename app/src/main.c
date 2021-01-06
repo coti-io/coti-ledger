@@ -339,7 +339,7 @@ void coti_main(void)
                     reset_app_context();
                     break;
                 }
-                if (e != 0x9000)
+                if (e != OK)
                 {
                     flags &= ~IO_ASYNCH_REPLY;
                 }
