@@ -39,11 +39,10 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
 
         app_state = APP_STATE_SIGNING_MESSAGE;
         tmp_ctx.message_signing_context.path_length = work_buffer[0];
-        if ((tmp_ctx.message_signing_context.path_length < 0x01) ||
-            (tmp_ctx.message_signing_context.path_length > MAX_BIP32_PATH))
+        if ((tmp_ctx.message_signing_context.path_length < 0x01) || (tmp_ctx.message_signing_context.path_length > MAX_BIP32_PATH))
         {
             PRINTF("Invalid path\n");
-            THROW(INVALID_DATA);
+            THROW(INVALID_PATH);
         }
 
         work_buffer++;
@@ -70,10 +69,12 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
         tmp_ctx.message_signing_context.remaining_length = U4BE(work_buffer, 0);
         work_buffer += 4;
         data_length -= 4;
-        if(p2 == P2_NOT_HASHED) 
+        if (p2 == P2_NOT_HASHED)
         {
             cx_keccak_init(&sha3, 256);
-        } else if(tmp_ctx.message_signing_context.remaining_length != 32) {
+        }
+        else if (tmp_ctx.message_signing_context.remaining_length != 32)
+        {
             PRINTF("Invalid data\n");
             THROW(INVALID_DATA);
         }
@@ -82,15 +83,15 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
     if ((p1 == P1_MORE) && (app_state != APP_STATE_SIGNING_MESSAGE))
     {
         PRINTF("Signature not initialized\n");
-        THROW(CONDITIONS_OF_USE_NOT_SATISFIED);
+        THROW(CMD_NOT_INITIATED);
     }
 
     if (data_length > tmp_ctx.message_signing_context.remaining_length)
     {
         THROW(INVALID_DATA);
     }
-    
-    if (p2 == P2_NOT_HASHED) 
+
+    if (p2 == P2_NOT_HASHED)
     {
         cx_hash((cx_hash_t *)&sha3, 0, work_buffer, data_length, NULL, 0);
     }
@@ -98,16 +99,16 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
     tmp_ctx.message_signing_context.remaining_length -= data_length;
     if (tmp_ctx.message_signing_context.remaining_length == 0)
     {
-        if (p2 == P2_NOT_HASHED) 
+        if (p2 == P2_NOT_HASHED)
         {
-        cx_hash((cx_hash_t *)&sha3, CX_LAST, work_buffer, 0, tmp_ctx.message_signing_context.hash,
-                sizeof(tmp_ctx.message_signing_context.hash));
-        } else 
+            cx_hash((cx_hash_t *)&sha3, CX_LAST, work_buffer, 0, tmp_ctx.message_signing_context.hash, sizeof(tmp_ctx.message_signing_context.hash));
+        }
+        else
         {
-            for(int i = 0; i < sizeof(tmp_ctx.message_signing_context.hash); i++)
+            for (int i = 0; i < sizeof(tmp_ctx.message_signing_context.hash); i++)
             {
                 tmp_ctx.message_signing_context.hash[i] = work_buffer[i];
-            }      
+            }
         }
 
         array_hexstr(strings.tmp.tmp, &tmp_ctx.message_signing_context.hash, sizeof(tmp_ctx.message_signing_context.hash));

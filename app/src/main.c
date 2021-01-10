@@ -1,20 +1,20 @@
 /*******************************************************************************
-*   Ledger App Coti
-*   (c) 2017 Ledger
-*   (c) 2020 Tchain Ltd. adaptation for COTI
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-********************************************************************************/
+ *   Ledger App Coti
+ *   (c) 2017 Ledger
+ *   (c) 2020 Tchain Ltd. adaptation for COTI
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
 
 #include "shared_context.h"
 #include "apdu_constants.h"
@@ -90,8 +90,8 @@ void format_signature_out(const uint8_t *signature)
 {
     os_memset(G_io_apdu_buffer + 1, 0x00, 64);
     uint8_t offset = 1;
-    uint8_t xoffset = 4; //point to r value
-    //copy r
+    uint8_t xoffset = 4; // point to r value
+    // copy r
     uint8_t xlength = signature[xoffset - 1];
     if (xlength == 33)
     {
@@ -100,8 +100,8 @@ void format_signature_out(const uint8_t *signature)
     }
     memmove(G_io_apdu_buffer + offset + 32 - xlength, signature + xoffset, xlength);
     offset += 32;
-    xoffset += xlength + 2; //move over rvalue and TagLEn
-    //copy s value
+    xoffset += xlength + 2; // move over rvalue and TagLEn
+    // copy s value
     xlength = signature[xoffset - 1];
     if (xlength == 33)
     {
@@ -146,8 +146,7 @@ unsigned int ui_approval_sign_message_nanos_button(unsigned int button_mask, uns
     return 0;
 }
 
-unsigned int ui_data_selector_nanos_button(unsigned int button_mask,
-                                           unsigned int button_mask_counter)
+unsigned int ui_data_selector_nanos_button(unsigned int button_mask, unsigned int button_mask_counter)
 {
     switch (button_mask)
     {
@@ -164,8 +163,7 @@ unsigned int ui_data_selector_nanos_button(unsigned int button_mask,
     return 0;
 }
 
-unsigned int ui_data_parameter_nanos_button(unsigned int button_mask,
-                                            unsigned int button_mask_counter)
+unsigned int ui_data_parameter_nanos_button(unsigned int button_mask, unsigned int button_mask_counter)
 {
     switch (button_mask)
     {
@@ -231,11 +229,13 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
             switch (G_io_apdu_buffer[OFFSET_INS])
             {
             case INS_GET_PUBLIC_KEY:
-                handle_get_public_key(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA, G_io_apdu_buffer[OFFSET_LC], flags, tx);
+                handle_get_public_key(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA,
+                                      G_io_apdu_buffer[OFFSET_LC], flags, tx);
                 break;
 
             case INS_SIGN_MESSAGE:
-                handle_sign_message(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA, G_io_apdu_buffer[OFFSET_LC], flags, tx);
+                handle_sign_message(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA,
+                                    G_io_apdu_buffer[OFFSET_LC], flags, tx);
                 break;
 
             default:
@@ -248,7 +248,7 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
             THROW(EXCEPTION_IO_RESET);
         }
         CATCH_OTHER(e)
-        { 
+        {
             PRINTF("Exception %x\n", e);
             switch (e & 0xF000)
             {
