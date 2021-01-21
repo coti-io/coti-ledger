@@ -223,7 +223,7 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
         {
             if (G_io_apdu_buffer[OFFSET_CLA] != CLA)
             {
-                THROW(CLA_NOT_SUPPORTED);
+                THROW(SW_UNKNOWN_CLASS);
             }
 
             switch (G_io_apdu_buffer[OFFSET_INS])
@@ -239,7 +239,7 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
                 break;
 
             default:
-                THROW(INS_NOT_SUPPORTED);
+                THROW(SW_UNKNOWN_INSTRUCTION);
                 break;
             }
         }
@@ -249,7 +249,7 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
         }
         CATCH_OTHER(e)
         {
-            PRINTF("Exception %x\n", e);
+            //  PRINTF("Exception %x\n", e);
             switch (e & 0xF000)
             {
             case 0x6000:
@@ -309,7 +309,12 @@ void coti_main(void)
                 // bootloader configuration
                 if (rx == 0)
                 {
-                    THROW(SECURITY_STATUS_NOT_SATISFIED);
+                    THROW(SW_SECURITY_STATUS_NOT_SATISFIED);
+                }
+
+                if (os_global_pin_is_validated() != BOLOS_TRUE)
+                {
+                    THROW(SW_DEVICE_LOCKED);
                 }
 
                 PRINTF("New APDU received:\n%.*H\n", rx, G_io_apdu_buffer);
@@ -339,7 +344,7 @@ void coti_main(void)
                     reset_app_context();
                     break;
                 }
-                if (e != OK)
+                if (e != SW_OK)
                 {
                     flags &= ~IO_ASYNCH_REPLY;
                 }

@@ -5,7 +5,7 @@ UX_STEP_NOCB(ux_sign_flow_1_step, pnn,
              {
                  &C_icon_certificate,
                  "Sign",
-                 "message",
+                 tmp_ctx.message_signing_context.signing_type_text,
              });
 UX_STEP_NOCB(ux_sign_flow_2_step, bnnn_paging,
              {

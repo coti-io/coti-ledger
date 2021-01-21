@@ -11,6 +11,8 @@
 #include "utils.h"
 
 #define MAX_BIP32_PATH 10
+#define MAX_SIGNING_TEXT 15
+#define HASH_LENGTH 32
 
 typedef struct public_key_context_t
 {
@@ -21,17 +23,28 @@ typedef struct message_signing_context_t
 {
     uint8_t path_length;
     uint32_t bip32_path[MAX_BIP32_PATH];
-    uint8_t hash[32];
+    char signing_type_text[MAX_SIGNING_TEXT];
+    uint8_t hash[HASH_LENGTH];
     uint32_t remaining_length;
 } message_signing_context_t;
 
-typedef union
+typedef union tmp_ctx_t
 {
     public_key_context_t public_key_context;
     message_signing_context_t message_signing_context;
 } tmp_ctx_t;
 
-typedef enum
+typedef enum signing_type_t
+{
+    MESSAGE,
+    FULL_NODE_FEE,
+    TX_TRUST_SCORE,
+    BASE_TX,
+    TX,
+    MAX_SIGNING_TYPE
+} signing_type_t;
+
+typedef enum app_state_t
 {
     APP_STATE_IDLE,
     APP_STATE_SIGNING_MESSAGE
@@ -48,7 +61,7 @@ typedef struct str_data_tmp_t
     char tmp2[40];
 } str_data_tmp_t;
 
-typedef union
+typedef union strings_t
 {
     str_data_t common;
     str_data_tmp_t tmp;

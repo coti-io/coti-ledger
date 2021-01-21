@@ -31,7 +31,7 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
     }
     format_signature_out(signature);
     tx = 65;
-    unsigned short sw = OK;
+    unsigned short sw = SW_OK;
     G_io_apdu_buffer[tx++] = sw >> 8;
     G_io_apdu_buffer[tx++] = sw & 0xFF;
     reset_app_context();
@@ -45,7 +45,7 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
 unsigned int io_seproxyhal_touch_sign_message_cancel(const bagl_element_t *e)
 {
     reset_app_context();
-    unsigned short sw = REJECTED_BY_USER;
+    unsigned short sw = SW_REJECTED_BY_USER;
     G_io_apdu_buffer[0] = sw >> 8;
     G_io_apdu_buffer[1] = sw & 0xFF;
     // Send back the response, do not restart the event loop

@@ -6,6 +6,8 @@
 #include "ui_flow.h"
 #endif
 
+#include "sign_message_constants.h"
+
 void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t data_length, unsigned int *flags, unsigned int *tx)
 {
     UNUSED(tx);
@@ -13,23 +15,24 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
     if ((p1 != P1_FIRST) && (p1 != P1_MORE))
     {
         PRINTF("Incorrect p1\n");
-        THROW(INCORRECT_P1_P2);
+        THROW(SW_INCORRECT_P1_P2);
     }
 
     if ((p2 != P2_HASHED) && (p2 != P2_NOT_HASHED))
     {
         PRINTF("Incorrect p2\n");
-        THROW(INCORRECT_P1_P2);
+        THROW(SW_INCORRECT_P1_P2);
     }
+
+    uint32_t i;
 
     if (p1 == P1_FIRST)
     {
-        uint32_t i;
 
         if (data_length < 1)
         {
             PRINTF("Invalid data\n");
-            THROW(INVALID_DATA);
+            THROW(SW_INVALID_DATA);
         }
 
         if (app_state != APP_STATE_IDLE)
@@ -42,29 +45,36 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
         if ((tmp_ctx.message_signing_context.path_length < 0x01) || (tmp_ctx.message_signing_context.path_length > MAX_BIP32_PATH))
         {
             PRINTF("Invalid path\n");
-            THROW(INVALID_PATH);
+            THROW(SW_INVALID_PATH);
         }
 
         work_buffer++;
         data_length--;
+
+        if (data_length < 4 * tmp_ctx.message_signing_context.path_length + 5)
+        {
+            PRINTF("Invalid data\n");
+            THROW(SW_INVALID_DATA);
+        }
+
         for (i = 0; i < tmp_ctx.message_signing_context.path_length; i++)
         {
-            if (data_length < 4)
-            {
-                PRINTF("Invalid data\n");
-                THROW(INVALID_DATA);
-            }
-
             tmp_ctx.message_signing_context.bip32_path[i] = U4BE(work_buffer, 0);
             work_buffer += 4;
             data_length -= 4;
         }
 
-        if (data_length < 4)
+        uint8_t signing_type = work_buffer[0];
+        work_buffer++;
+        data_length--;
+
+        if (signing_type >= MAX_SIGNING_TYPE)
         {
             PRINTF("Invalid data\n");
-            THROW(INVALID_DATA);
+            THROW(SW_INVALID_DATA);
         }
+
+        strcpy(tmp_ctx.message_signing_context.signing_type_text, signing_type_texts[signing_type]);
 
         tmp_ctx.message_signing_context.remaining_length = U4BE(work_buffer, 0);
         work_buffer += 4;
@@ -73,22 +83,22 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
         {
             cx_keccak_init(&sha3, 256);
         }
-        else if (tmp_ctx.message_signing_context.remaining_length != 32)
+        else if (tmp_ctx.message_signing_context.remaining_length != HASH_LENGTH)
         {
             PRINTF("Invalid data\n");
-            THROW(INVALID_DATA);
+            THROW(SW_INVALID_DATA);
         }
     }
 
     if ((p1 == P1_MORE) && (app_state != APP_STATE_SIGNING_MESSAGE))
     {
         PRINTF("Signature not initialized\n");
-        THROW(CMD_NOT_INITIATED);
+        THROW(SW_INSTRUCTION_NOT_INITIATED);
     }
 
     if (data_length > tmp_ctx.message_signing_context.remaining_length)
     {
-        THROW(INVALID_DATA);
+        THROW(SW_INVALID_DATA);
     }
 
     if (p2 == P2_NOT_HASHED)
@@ -105,10 +115,7 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
         }
         else
         {
-            for (int i = 0; i < sizeof(tmp_ctx.message_signing_context.hash); i++)
-            {
-                tmp_ctx.message_signing_context.hash[i] = work_buffer[i];
-            }
+            memcpy(tmp_ctx.message_signing_context.hash, work_buffer, sizeof(tmp_ctx.message_signing_context.hash));
         }
 
         array_hexstr(strings.tmp.tmp, &tmp_ctx.message_signing_context.hash, sizeof(tmp_ctx.message_signing_context.hash));
@@ -119,6 +126,6 @@ void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *work_buffer, uint16_t 
     }
     else
     {
-        THROW(OK);
+        THROW(SW_OK);
     }
 }

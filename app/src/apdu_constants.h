@@ -23,15 +23,16 @@
 #define OFFSET_CDATA 5
 
 // status words
-#define SECURITY_STATUS_NOT_SATISFIED 0x6982
-#define CMD_NOT_INITIATED 0x6983
-#define REJECTED_BY_USER 0x6985
-#define INVALID_DATA 0x6A80
-#define INVALID_PATH 0x6A81
-#define INCORRECT_P1_P2 0x6B00
-#define INS_NOT_SUPPORTED 0x6D00
-#define CLA_NOT_SUPPORTED 0x6E00
-#define OK 0x9000 
+#define SW_SECURITY_STATUS_NOT_SATISFIED 0x6982
+#define SW_DEVICE_LOCKED 0x6983
+#define SW_REJECTED_BY_USER 0x6985
+#define SW_INVALID_DATA 0x6A80
+#define SW_INVALID_PATH 0x6A81
+#define SW_INSTRUCTION_NOT_INITIATED 0x6A82
+#define SW_INCORRECT_P1_P2 0x6B00
+#define SW_UNKNOWN_INSTRUCTION 0x6D00
+#define SW_UNKNOWN_CLASS 0x6E00
+#define SW_OK 0x9000
 
 void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t data_length, unsigned int *flags, unsigned int *tx);
 void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t data_length, unsigned int *flags, unsigned int *tx);
