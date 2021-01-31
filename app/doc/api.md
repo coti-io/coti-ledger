@@ -147,11 +147,17 @@ Requests are encoded using the standard BLE 20 bytes MTU size
 
 The following standard Status Words are returned for all APDUs - some specific Status Words can be used for specific commands and are mentioned in the command description.
 
-| **SW**     | **Description**
-| ------------- | ------------- |
+| **SW**   | **Description**
+| -------- | ------------- |
 |   6700   | Incorrect length
-|   6982   | Security status not satisfied (Canceled by user)
+|   6982   | Security status not satisfied
+|   6983   | Device locked
+|   6985   | Instruction rejected by user
 |   6A80   | Invalid data
+|   6A81   | Invalid path
+|   6A82   | Instruction not initiated
 |   6B00   | Incorrect parameter P1 or P2
+|   6D00   | Unknown instruction
+|   6E00   | Unknown class
 |   6Fxx   | Technical problem (Internal error, please report)
 |   9000   | Normal ending of the command
