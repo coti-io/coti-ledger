@@ -2,14 +2,20 @@
 
 ## Overview
 
-This is an alpha version of the Ledger Nano S COTI app.
+This is the Ledger Nano S COTI app.
 
 ## Building and Installing
 
-Make sure that Docker is installed and build the `ledger-app-builder:1.6.0` container:
+Make sure that Docker is installed and build the `ledger-app-builder:1.6.0` container image:
 
 ```bash
-docker build -t ledger-app-builder:1.6.0 .
+$ docker build -t ledger-app-builder:1.6.0 .
+```
+
+Make sure to install `coreutils` to have the `realpath` command available:
+
+```bash
+$ brew install coreutils
 ```
 
 Compile the app:
@@ -17,13 +23,14 @@ Compile the app:
 ```bash
 $ docker run --rm -ti -v "$(realpath .):/coti" ledger-app-builder:1.6.0
 root@d83f688268b3:/coti# cd app
-root@d83f688268b3:/coti# make
+root@d83f688268b3:/coti/app# make
 ```
 
-Make sure to install `coreutils` to have the `realpath` command available:
+After you've built the application, you can generate an installation script `load.sh` via:
 
 ```bash
-brew install coreutils
+root@d83f688268b3:/coti/app# make load-script
+root@d83f688268b3:/coti/app# exit
 ```
 
 ## Installing the Application
@@ -31,24 +38,23 @@ brew install coreutils
 In order to install/uninstall the application, you need to install the `ledgerblue` python module and additional dependencies:
 
 ```bash
-xcode-select --install
+$ xcode-select --install
 
-brew install python3 libusb
-pip3 install ledgerblue hidapi
+$ brew install python3 libusb
+$ pip3 install ledgerblue hidapi
 ```
 
-After you've built the application, you can generate an installation script via:
+Afterwards, you can run the generated `load.sh` in order to install the application:
 
 ```bash
-make load-script
+$ cd app
+$ ./load.sh
 ```
-
-Afterwards, you can run the generated `load.sh` in order to install the application.
 
 You can uninstall the application via:
 
 ```bash
-python3 -m ledgerblue.deleteApp --targetId 0x31100004 --appName "COTI"
+$ python3 -m ledgerblue.deleteApp --targetId 0x31100004 --appName "COTI"
 ```
 
 ## Documentation
