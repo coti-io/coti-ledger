@@ -1,6 +1,7 @@
 #pragma once
 
 #include "shared_context.h"
+#include <ux.h>
 
 unsigned int io_seproxyhal_touch_tx_ok(const bagl_element_t *e);
 unsigned int io_seproxyhal_touch_tx_cancel(const bagl_element_t *e);
