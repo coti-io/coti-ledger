@@ -79,6 +79,7 @@ DEFINES += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
 DEFINES += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
 else
 DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
+DEFINES += HAVE_WALLET_ID_SDK
 endif
 
 # Both nano S and X benefit from the flow.
@@ -129,22 +130,10 @@ include $(BOLOS_SDK)/Makefile.glyphs
 ### variables processed by the common makefile.rules of the SDK to grab source files and include dirs
 APP_SOURCE_PATH += src
 SDK_SOURCE_PATH += lib_stusb lib_stusb_impl lib_u2f
+SDK_SOURCE_PATH += lib_ux
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
 SDK_SOURCE_PATH += lib_blewbxx lib_blewbxx_impl
-SDK_SOURCE_PATH += lib_ux
-endif
-
-# If the SDK supports Flow for Nano S, build for it
-
-ifeq ($(TARGET_NAME),TARGET_NANOS)
-
-	ifneq "$(wildcard $(BOLOS_SDK)/lib_ux/src/ux_flow_engine.c)" ""
-		SDK_SOURCE_PATH += lib_ux
-		DEFINES += HAVE_UX_FLOW
-		DEFINES += HAVE_WALLET_ID_SDK
-	endif
-
 endif
 
 load: all

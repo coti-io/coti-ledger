@@ -6,10 +6,10 @@ This is the Ledger Nano S COTI app.
 
 ## Building and Installing
 
-Make sure that Docker is installed and build the `ledger-app-builder:1.6.1-2` container image:
+Make sure that Docker is installed and build the `ledger-app-builder:2.0.0-1` container image:
 
 ```bash
-$ docker build -t ledger-app-builder:1.6.1-2 .
+$ docker build -t ledger-app-builder:2.0.0-1 .
 ```
 
 Make sure to install `coreutils` to have the `realpath` command available:
@@ -21,7 +21,7 @@ $ brew install coreutils
 Compile the app:
 
 ```bash
-$ docker run --rm -ti -v "$(realpath .):/coti" ledger-app-builder:1.6.1-2
+$ docker run --rm -ti -v "$(realpath .):/coti" ledger-app-builder:2.0.0-1
 root@d83f688268b3:/coti# cd app
 root@d83f688268b3:/coti/app# make
 ```
