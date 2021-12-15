@@ -40,8 +40,8 @@ This command returns the public key for the given BIP 32 path.
 
 #### Description
 
-This command signs a non-hashed message following. The input data is the message to sign, streamed to the device in 255 bytes
-maximum data chunks
+This command signs a non-hashed message following. The input data is the message to sign, streamed to the device in 255
+bytes maximum data chunks
 
 #### Coding
 
@@ -80,7 +80,8 @@ maximum data chunks
 
 ### General Transport Description
 
-Ledger APDUs requests and responses are encapsulated using a flexible protocol allowing to fragment large payloads over different underlying transport mechanisms.
+Ledger APDUs requests and responses are encapsulated using a flexible protocol allowing to fragment large payloads over
+different underlying transport mechanisms.
 
 The common transport header is defined as follows:
 
@@ -91,9 +92,11 @@ The common transport header is defined as follows:
 | Packet sequence index (big endian)     | 2
 | Payload                                | var
 
-The Communication channel ID allows commands multiplexing over the same physical link. It is not used for the time being, and should be set to 0101 to avoid compatibility issues with implementations ignoring a leading 00 byte.
+The Communication channel ID allows commands multiplexing over the same physical link. It is not used for the time
+being, and should be set to 0101 to avoid compatibility issues with implementations ignoring a leading 00 byte.
 
-The Command tag describes the message content. Use TAG_APDU (0x05) for standard APDU payloads, or TAG_PING (0x02) for a simple link test.
+The Command tag describes the message content. Use TAG_APDU (0x05) for standard APDU payloads, or TAG_PING (0x02) for a
+simple link test.
 
 The Packet sequence index describes the current sequence for fragmented payloads. The first fragment index is 0x00.
 
@@ -131,7 +134,8 @@ APDU Response payloads are encoded as follows :
 
 ### USB mapping
 
-Messages are exchanged with the dongle over HID endpoints over interrupt transfers, with each chunk being 64 bytes long. The HID Report ID is ignored.
+Messages are exchanged with the dongle over HID endpoints over interrupt transfers, with each chunk being 64 bytes long.
+The HID Report ID is ignored.
 
 ### BLE mapping
 
@@ -139,13 +143,15 @@ A similar encoding is used over BLE, without the Communication channel ID.
 
 The application acts as a GATT server defining service UUID D973F2E0-B19E-11E2-9E96-0800200C9A66
 
-When using this service, the client sends requests to the characteristic D973F2E2-B19E-11E2-9E96-0800200C9A66, and gets notified on the characteristic D973F2E1-B19E-11E2-9E96-0800200C9A66 after registering for it.
+When using this service, the client sends requests to the characteristic D973F2E2-B19E-11E2-9E96-0800200C9A66, and gets
+notified on the characteristic D973F2E1-B19E-11E2-9E96-0800200C9A66 after registering for it.
 
 Requests are encoded using the standard BLE 20 bytes MTU size
 
 ## Status Words
 
-The following standard Status Words are returned for all APDUs - some specific Status Words can be used for specific commands and are mentioned in the command description.
+The following standard Status Words are returned for all APDUs - some specific Status Words can be used for specific
+commands and are mentioned in the command description.
 
 | **SW**   | **Description**
 | -------- | ------------- |

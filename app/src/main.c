@@ -22,6 +22,7 @@
 
 #ifdef HAVE_UX_FLOW
 #include "ui_flow.h"
+#include "ux.h"
 #endif
 
 #include "glyphs.h"
@@ -37,7 +38,6 @@ cx_sha3_t sha3;
 uint8_t app_state;
 
 #ifdef HAVE_UX_FLOW
-#include "ux.h"
 ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
 #else  // HAVE_UX_FLOW
@@ -276,7 +276,7 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
         {
         }
     }
-    END_TRY;
+    END_TRY
 }
 
 void coti_main(void)
@@ -365,7 +365,7 @@ void coti_main(void)
 
 void io_seproxyhal_display(const bagl_element_t *element)
 {
-    io_seproxyhal_display_default((bagl_element_t *)element);
+    io_seproxyhal_display_default(element);
 }
 
 unsigned char io_event(unsigned char channel)
