@@ -45,12 +45,13 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
 unsigned int io_seproxyhal_touch_sign_message_cancel(const bagl_element_t *e)
 {
     reset_app_context();
-    unsigned short sw = SW_REJECTED_BY_USER;
+    uint16_t sw = SW_REJECTED_BY_USER;
     G_io_apdu_buffer[0] = sw >> 8;
     G_io_apdu_buffer[1] = sw & 0xFF;
     // Send back the response, do not restart the event loop
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, 2);
     // Display back the original UX
     ui_idle();
-    return 0; // do not redraw the widget
+    // do not redraw the widget
+    return 0;
 }

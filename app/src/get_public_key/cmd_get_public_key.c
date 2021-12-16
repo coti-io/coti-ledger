@@ -7,18 +7,18 @@
 
 #include "get_public_key.h"
 
-void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t data_length, unsigned int *flags, unsigned int *tx)
+void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint16_t dataLength, uint32_t *flags, uint32_t *tx)
 {
-    UNUSED(data_length);
-    uint8_t private_key_data[32];
-    uint32_t bip32_path[MAX_BIP32_PATH];
-    uint32_t i;
-    uint8_t bip32_path_length = *(dataBuffer++);
-    cx_ecfp_private_key_t private_key;
+    UNUSED(dataLength);
+    const uint8_t *dataBufferPtr = dataBuffer;
+    uint8_t privateKeyData[32];
+    uint32_t bip32Path[MAX_BIP32_PATH];
+    uint8_t bip32PathLength = *(dataBufferPtr++);
+    cx_ecfp_private_key_t privateKey;
 
     reset_app_context();
 
-    if ((bip32_path_length < 0x01) || (bip32_path_length > MAX_BIP32_PATH))
+    if ((bip32PathLength < 0x01) || (bip32PathLength > MAX_BIP32_PATH))
     {
         PRINTF("Invalid path\n");
         THROW(SW_INVALID_PATH);
@@ -36,21 +36,21 @@ void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t
         THROW(SW_INCORRECT_P1_P2);
     }
 
-    for (i = 0; i < bip32_path_length; i++)
+    for (uint32_t i = 0; i < bip32PathLength; ++i)
     {
-        bip32_path[i] = U4BE(dataBuffer, 0);
-        dataBuffer += 4;
+        bip32Path[i] = U4BE(dataBuffer, 0);
+        dataBufferPtr += 4;
     }
 
     io_seproxyhal_io_heartbeat();
-    os_perso_derive_node_bip32(CX_CURVE_256K1, bip32_path, bip32_path_length, private_key_data, NULL);
-    cx_ecfp_init_private_key(CX_CURVE_256K1, private_key_data, 32, &private_key);
+    os_perso_derive_node_bip32(CX_CURVE_256K1, bip32Path, bip32PathLength, privateKeyData, NULL);
+    cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, sizeof(privateKeyData), &privateKey);
     io_seproxyhal_io_heartbeat();
-    cx_ecfp_generate_pair(CX_CURVE_256K1, &tmp_ctx.public_key_context.public_key, &private_key, 1);
-    os_memset(&private_key, 0, sizeof(private_key));
-    os_memset(private_key_data, 0, sizeof(private_key_data));
+    cx_ecfp_generate_pair(CX_CURVE_256K1, &tmp_ctx.public_key_context.public_key, &privateKey, 1);
+    os_memset(&privateKey, 0, sizeof(privateKey));
+    os_memset(privateKeyData, 0, sizeof(privateKeyData));
 
-    if (p1 == P1_NON_CONFIRM)
+    if (P1_NON_CONFIRM == p1)
     {
         *tx = set_result_get_public_key();
         THROW(SW_OK);
@@ -59,7 +59,8 @@ void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t
     {
         // prepare for a UI based reply
         snprintf(strings.common.public_key, sizeof(strings.common.public_key), "0x");
-        array_hexstr(&strings.common.public_key[2], &tmp_ctx.public_key_context.public_key.W, 65);
+        const uint16_t publicKeyStartIndex = 2;
+        array_hexstr(&strings.common.public_key[publicKeyStartIndex], &tmp_ctx.public_key_context.public_key.W, sizeof(tmp_ctx.public_key_context.public_key.W));
 
         ux_flow_init(0, ux_display_public_flow, NULL);
 

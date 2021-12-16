@@ -13,8 +13,6 @@
 #define P2_HASHED 0x01
 #define P2_NOT_HASHED 0x00
 
-#define COMMON_CLA 0xB0
-
 #define OFFSET_CLA 0
 #define OFFSET_INS 1
 #define OFFSET_P1 2
@@ -34,5 +32,5 @@
 #define SW_UNKNOWN_CLASS 0x6E00
 #define SW_OK 0x9000
 
-void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t data_length, unsigned int *flags, unsigned int *tx);
-void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t data_length, unsigned int *flags, unsigned int *tx);
+void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint16_t dataLength, uint32_t *flags, uint32_t *tx);
+void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16_t dataLength, uint32_t *flags, const uint32_t *tx);
