@@ -59,7 +59,7 @@ void ui_idle(void)
 {
 #if defined(HAVE_UX_FLOW)
     // reserve a display stack slot if none yet
-    if (G_ux.stack_count == 0)
+    if (0 == G_ux.stack_count)
     {
         ux_stack_push();
     }
@@ -77,10 +77,9 @@ unsigned int ui_address_nanos_button(unsigned int button_mask, unsigned int butt
         break;
 
     case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
-    { // OK
+        // OK
         io_seproxyhal_touch_address_ok(NULL);
         break;
-    }
     }
     return 0;
 }
@@ -88,25 +87,28 @@ unsigned int ui_address_nanos_button(unsigned int button_mask, unsigned int butt
 
 void format_signature_out(const uint8_t *signature)
 {
-    os_memset(G_io_apdu_buffer + 1, 0x00, 64);
+    const uint32_t signatureLength = 64;
+    os_memset(G_io_apdu_buffer + 1, 0x00, signatureLength);
     uint8_t offset = 1;
-    uint8_t xoffset = 4; // point to r value
+    // point to r value
+    uint8_t xoffset = 4;
     // copy r
     uint8_t xlength = signature[xoffset - 1];
-    if (xlength == 33)
+    if (33 == xlength)
     {
         xlength = 32;
-        xoffset++;
+        ++xoffset;
     }
     memmove(G_io_apdu_buffer + offset + 32 - xlength, signature + xoffset, xlength);
     offset += 32;
-    xoffset += xlength + 2; // move over rvalue and TagLEn
+    // move over rvalue and TagLEn
+    xoffset += xlength + 2;
     // copy s value
     xlength = signature[xoffset - 1];
-    if (xlength == 33)
+    if (33 == xlength)
     {
         xlength = 32;
-        xoffset++;
+        ++xoffset;
     }
     memmove(G_io_apdu_buffer + offset + 32 - xlength, signature + xoffset, xlength);
 }
@@ -121,10 +123,8 @@ unsigned int ui_approval_nanos_button(unsigned int button_mask, unsigned int but
         break;
 
     case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
-    {
         io_seproxyhal_touch_tx_ok(NULL);
         break;
-    }
     }
     return 0;
 }
@@ -138,10 +138,8 @@ unsigned int ui_approval_sign_message_nanos_button(unsigned int button_mask, uns
         break;
 
     case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
-    {
         io_seproxyhal_touch_sign_message_ok(NULL);
         break;
-    }
     }
     return 0;
 }
@@ -155,10 +153,8 @@ unsigned int ui_data_selector_nanos_button(unsigned int button_mask, unsigned in
         break;
 
     case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
-    {
         io_seproxyhal_touch_data_ok(NULL);
         break;
-    }
     }
     return 0;
 }
@@ -172,10 +168,8 @@ unsigned int ui_data_parameter_nanos_button(unsigned int button_mask, unsigned i
         break;
 
     case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
-    {
         io_seproxyhal_touch_data_ok(NULL);
         break;
-    }
     }
     return 0;
 }
@@ -184,14 +178,14 @@ unsigned int ui_data_parameter_nanos_button(unsigned int button_mask, unsigned i
 
 unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len)
 {
-    switch (channel & ~(IO_FLAGS))
+    switch (channel & (uint8_t)~IO_FLAGS)
     {
     case CHANNEL_KEYBOARD:
         break;
 
         // multiplexed io exchange over a SPI channel and TLV encapsulated protocol
     case CHANNEL_SPI:
-        if (tx_len)
+        if (tx_len != 0)
         {
             io_seproxyhal_spi_send(G_io_apdu_buffer, tx_len);
 
@@ -199,7 +193,8 @@ unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len)
             {
                 reset();
             }
-            return 0; // nothing received from the master so far (it's a tx transaction)
+            // nothing received from the master so far (it's a tx transaction)
+            return 0;
         }
         else
         {
@@ -213,9 +208,9 @@ unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len)
     return 0;
 }
 
-void handleApdu(unsigned int *flags, unsigned int *tx)
+void handleApdu(uint32_t *flags, uint32_t *tx)
 {
-    unsigned short sw = 0;
+    uint16_t sw;
 
     BEGIN_TRY
     {
@@ -229,13 +224,13 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
             switch (G_io_apdu_buffer[OFFSET_INS])
             {
             case INS_GET_PUBLIC_KEY:
-                handle_get_public_key(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA,
-                                      G_io_apdu_buffer[OFFSET_LC], flags, tx);
+                handleGetPublicKey(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA,
+                                   G_io_apdu_buffer[OFFSET_LC], flags, tx);
                 break;
 
             case INS_SIGN_MESSAGE:
-                handle_sign_message(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA,
-                                    G_io_apdu_buffer[OFFSET_LC], flags, tx);
+                handleSignMessage(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA,
+                                  G_io_apdu_buffer[OFFSET_LC], flags, tx);
                 break;
 
             default:
@@ -249,7 +244,7 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
         }
         CATCH_OTHER(e)
         {
-            //  PRINTF("Exception %x\n", e);
+            //  PRINTF("Exception %x\n", e)
             switch (e & 0xF000)
             {
             case 0x6000:
@@ -281,9 +276,9 @@ void handleApdu(unsigned int *flags, unsigned int *tx)
 
 void coti_main(void)
 {
-    unsigned int rx = 0;
-    unsigned int tx = 0;
-    unsigned int flags = 0;
+    uint32_t rx = 0;
+    uint32_t tx = 0;
+    uint32_t flags = 0;
 
     // DESIGN NOTE: the bootloader ignores the way APDU are fetched. The only
     // goal is to retrieve APDU.
@@ -293,21 +288,21 @@ void coti_main(void)
     // APDU injection faults.
     for (;;)
     {
-        unsigned short sw = 0;
+        uint16_t sw;
 
         BEGIN_TRY
         {
             TRY
             {
                 rx = tx;
-                tx = 0; // ensure no race in catch_other if io_exchange throws
-                        // an error
+                // ensure no race in catch_other if io_exchange throw an error
+                tx = 0;
                 rx = io_exchange(CHANNEL_APDU | flags, rx);
                 flags = 0;
 
                 // no apdu received, well, reset the session, and reset the
                 // bootloader configuration
-                if (rx == 0)
+                if (0 == rx)
                 {
                     THROW(SW_SECURITY_STATUS_NOT_SATISFIED);
                 }
@@ -346,7 +341,7 @@ void coti_main(void)
                 }
                 if (e != SW_OK)
                 {
-                    flags &= ~IO_ASYNCH_REPLY;
+                    flags &= (uint8_t)~IO_ASYNCH_REPLY;
                 }
                 // Unexpected exception => report
                 G_io_apdu_buffer[tx] = sw >> 8;
@@ -378,7 +373,7 @@ unsigned char io_event(unsigned char channel)
         break;
 
     case SEPROXYHAL_TAG_BUTTON_PUSH_EVENT:
-        UX_BUTTON_PUSH_EVENT(G_io_seproxyhal_spi_buffer);
+        UX_BUTTON_PUSH_EVENT(G_io_seproxyhal_spi_buffer)
         break;
 
     case SEPROXYHAL_TAG_STATUS_EVENT:
@@ -387,18 +382,17 @@ unsigned char io_event(unsigned char channel)
             THROW(EXCEPTION_IO_RESET);
         }
         // no break is intentional
-
-    default:
-        UX_DEFAULT_EVENT();
+    case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
+        UX_DISPLAYED_EVENT({})
         break;
 
-    case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
-        UX_DISPLAYED_EVENT({});
+    default:
+        UX_DEFAULT_EVENT()
         break;
     }
 
     // close the event if not done previously (by a display or whatever)
-    if (!io_seproxyhal_spi_is_status_sent())
+    if (io_seproxyhal_spi_is_status_sent() != 0)
     {
         io_seproxyhal_general_status();
     }
@@ -420,7 +414,7 @@ void app_exit(void)
         {
         }
     }
-    END_TRY_L(exit);
+    END_TRY_L(exit)
 }
 
 __attribute__((section(".boot"))) int main(int argc, char *argv[])
@@ -435,7 +429,7 @@ __attribute__((section(".boot"))) int main(int argc, char *argv[])
 
     for (;;)
     {
-        UX_INIT();
+        UX_INIT()
 
         BEGIN_TRY
         {
@@ -473,7 +467,7 @@ __attribute__((section(".boot"))) int main(int argc, char *argv[])
             {
             }
         }
-        END_TRY;
+        END_TRY
     }
 
     app_exit();
