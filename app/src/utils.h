@@ -20,4 +20,4 @@
 
 #include <stdint.h>
 
-void array_hexstr(char *strBuf, const void *bin, uint32_t len);
+void arrayHexstr(char *strBuf, const void *bin, uint32_t len);
