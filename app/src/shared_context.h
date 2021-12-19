@@ -16,22 +16,22 @@
 
 typedef struct public_key_context_s
 {
-    cx_ecfp_public_key_t public_key;
+    cx_ecfp_public_key_t publicKey;
 } public_key_context_t;
 
 typedef struct message_signing_context_s
 {
-    uint8_t path_length;
-    uint32_t bip32_path[MAX_BIP32_PATH];
-    char signing_type_text[MAX_SIGNING_TEXT];
+    uint8_t pathLength;
+    uint32_t bip32Path[MAX_BIP32_PATH];
+    char signingTypeText[MAX_SIGNING_TEXT];
     uint8_t hash[HASH_LENGTH];
-    uint32_t remaining_length;
+    uint32_t remainingLength;
 } message_signing_context_t;
 
 typedef union tmp_ctx_u
 {
-    public_key_context_t public_key_context;
-    message_signing_context_t message_signing_context;
+    public_key_context_t publicKeyContext;
+    message_signing_context_t messageSigningContext;
 } tmp_ctx_t;
 
 typedef enum signing_type_e
@@ -52,7 +52,8 @@ typedef enum app_state_e
 
 typedef struct str_data_s
 {
-    char public_key[65 * 2 + 3]; // "0x" + hex public key + '\0'
+    // "0x" + hex public key + '\0'
+    char publicKey[65 * 2 + 3];
 } str_data_t;
 
 typedef struct str_data_tmp_s
@@ -67,10 +68,10 @@ typedef union strings_u
     str_data_tmp_t tmp;
 } strings_t;
 
-extern tmp_ctx_t tmp_ctx;
+extern tmp_ctx_t tmpCtx;
 extern strings_t strings;
 extern cx_sha3_t sha3;
 
 extern uint8_t app_state;
 
-void reset_app_context(void);
+void resetAppContext(void);

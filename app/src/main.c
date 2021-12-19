@@ -18,6 +18,7 @@
 
 #include "shared_context.h"
 #include "apdu_constants.h"
+#include "apdu_handlers.h"
 #include "ui_callbacks.h"
 
 #ifdef HAVE_UX_FLOW
@@ -30,7 +31,7 @@
 
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
-tmp_ctx_t tmp_ctx;
+tmp_ctx_t tmpCtx;
 strings_t strings;
 
 cx_sha3_t sha3;
@@ -48,11 +49,11 @@ unsigned int ux_step;
 unsigned int ux_step_count;
 #endif // HAVE_UX_FLOW
 
-void reset_app_context()
+void resetAppContext(void)
 {
     PRINTF("!!RESET_APP_CONTEXT\n");
     app_state = APP_STATE_IDLE;
-    os_memset((uint8_t *)&tmp_ctx, 0, sizeof(tmp_ctx));
+    os_memset((uint8_t *)&tmpCtx, 0, sizeof(tmpCtx));
 }
 
 void ui_idle(void)
@@ -80,12 +81,14 @@ unsigned int ui_address_nanos_button(unsigned int button_mask, unsigned int butt
         // OK
         io_seproxyhal_touch_address_ok(NULL);
         break;
+    default:
+        break;
     }
     return 0;
 }
 #endif // #if defined(TARGET_NANOS)
 
-void format_signature_out(const uint8_t *signature)
+void formatSignatureOut(const uint8_t *signature)
 {
     const uint32_t signatureLength = 64;
     os_memset(G_io_apdu_buffer + 1, 0x00, signatureLength);
@@ -125,6 +128,8 @@ unsigned int ui_approval_nanos_button(unsigned int button_mask, unsigned int but
     case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
         io_seproxyhal_touch_tx_ok(NULL);
         break;
+    default:
+        break;
     }
     return 0;
 }
@@ -139,6 +144,8 @@ unsigned int ui_approval_sign_message_nanos_button(unsigned int button_mask, uns
 
     case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
         io_seproxyhal_touch_sign_message_ok(NULL);
+        break;
+    default:
         break;
     }
     return 0;
@@ -155,6 +162,8 @@ unsigned int ui_data_selector_nanos_button(unsigned int button_mask, unsigned in
     case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
         io_seproxyhal_touch_data_ok(NULL);
         break;
+    default:
+        break;
     }
     return 0;
 }
@@ -169,6 +178,8 @@ unsigned int ui_data_parameter_nanos_button(unsigned int button_mask, unsigned i
 
     case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
         io_seproxyhal_touch_data_ok(NULL);
+        break;
+    default:
         break;
     }
     return 0;
@@ -189,7 +200,7 @@ unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len)
         {
             io_seproxyhal_spi_send(G_io_apdu_buffer, tx_len);
 
-            if (channel & IO_RESET_AFTER_REPLIED)
+            if ((channel & IO_RESET_AFTER_REPLIED) != 0)
             {
                 reset();
             }
@@ -208,7 +219,7 @@ unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len)
     return 0;
 }
 
-void handleApdu(uint32_t *flags, uint32_t *tx)
+void handleApdu(uint32_t *flags, uint16_t *txLength)
 {
     uint16_t sw;
 
@@ -225,17 +236,16 @@ void handleApdu(uint32_t *flags, uint32_t *tx)
             {
             case INS_GET_PUBLIC_KEY:
                 handleGetPublicKey(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA,
-                                   G_io_apdu_buffer[OFFSET_LC], flags, tx);
+                                   G_io_apdu_buffer[OFFSET_LC], flags, txLength);
                 break;
 
             case INS_SIGN_MESSAGE:
                 handleSignMessage(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA,
-                                  G_io_apdu_buffer[OFFSET_LC], flags, tx);
+                                  G_io_apdu_buffer[OFFSET_LC], flags, txLength);
                 break;
 
             default:
                 THROW(SW_UNKNOWN_INSTRUCTION);
-                break;
             }
         }
         CATCH(EXCEPTION_IO_RESET)
@@ -250,7 +260,7 @@ void handleApdu(uint32_t *flags, uint32_t *tx)
             case 0x6000:
                 // Wipe the transaction context and report the exception
                 sw = e;
-                reset_app_context();
+                resetAppContext();
                 break;
             case 0x9000:
                 // All is well
@@ -259,13 +269,13 @@ void handleApdu(uint32_t *flags, uint32_t *tx)
             default:
                 // Internal error
                 sw = 0x6800 | (e & 0x7FF);
-                reset_app_context();
+                resetAppContext();
                 break;
             }
             // Unexpected exception => report
-            G_io_apdu_buffer[*tx] = sw >> 8;
-            G_io_apdu_buffer[*tx + 1] = sw & 0xFF;
-            *tx += 2;
+            G_io_apdu_buffer[*txLength] = sw >> 8;
+            G_io_apdu_buffer[*txLength + 1] = sw & 0xFF;
+            *txLength += 2;
         }
         FINALLY
         {
@@ -276,8 +286,8 @@ void handleApdu(uint32_t *flags, uint32_t *tx)
 
 void coti_main(void)
 {
-    uint32_t rx = 0;
-    uint32_t tx = 0;
+    uint16_t rxLength;
+    uint16_t txLength = 0;
     uint32_t flags = 0;
 
     // DESIGN NOTE: the bootloader ignores the way APDU are fetched. The only
@@ -294,15 +304,15 @@ void coti_main(void)
         {
             TRY
             {
-                rx = tx;
+                rxLength = txLength;
                 // ensure no race in catch_other if io_exchange throw an error
-                tx = 0;
-                rx = io_exchange(CHANNEL_APDU | flags, rx);
+                txLength = 0;
+                rxLength = io_exchange(CHANNEL_APDU | flags, rxLength);
                 flags = 0;
 
                 // no apdu received, well, reset the session, and reset the
                 // bootloader configuration
-                if (0 == rx)
+                if (0 == rxLength)
                 {
                     THROW(SW_SECURITY_STATUS_NOT_SATISFIED);
                 }
@@ -312,9 +322,9 @@ void coti_main(void)
                     THROW(SW_DEVICE_LOCKED);
                 }
 
-                PRINTF("New APDU received:\n%.*H\n", rx, G_io_apdu_buffer);
+                PRINTF("New APDU received:\n%.*H\n", rxLength, G_io_apdu_buffer);
 
-                handleApdu(&flags, &tx);
+                handleApdu(&flags, &txLength);
             }
             CATCH(EXCEPTION_IO_RESET)
             {
@@ -327,7 +337,7 @@ void coti_main(void)
                 case 0x6000:
                     // Wipe the transaction context and report the exception
                     sw = e;
-                    reset_app_context();
+                    resetAppContext();
                     break;
                 case 0x9000:
                     // All is well
@@ -336,7 +346,7 @@ void coti_main(void)
                 default:
                     // Internal error
                     sw = 0x6800 | (e & 0x7FF);
-                    reset_app_context();
+                    resetAppContext();
                     break;
                 }
                 if (e != SW_OK)
@@ -344,18 +354,16 @@ void coti_main(void)
                     flags &= (uint8_t)~IO_ASYNCH_REPLY;
                 }
                 // Unexpected exception => report
-                G_io_apdu_buffer[tx] = sw >> 8;
-                G_io_apdu_buffer[tx + 1] = sw & 0xFF;
-                tx += 2;
+                G_io_apdu_buffer[txLength] = sw >> 8;
+                G_io_apdu_buffer[txLength + 1] = sw & 0xFF;
+                txLength += 2;
             }
             FINALLY
             {
             }
         }
-        END_TRY;
+        END_TRY
     }
-
-    return;
 }
 
 void io_seproxyhal_display(const bagl_element_t *element)
@@ -422,7 +430,7 @@ __attribute__((section(".boot"))) int main(int argc, char *argv[])
     // exit critical section
     __asm volatile("cpsie i");
 
-    reset_app_context();
+    resetAppContext();
 
     // ensure exception will work as planned
     os_boot();
