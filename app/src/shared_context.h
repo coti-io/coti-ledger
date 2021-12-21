@@ -9,10 +9,7 @@
 #include <os_io_seproxyhal.h>
 
 #include "utils.h"
-
-#define MAX_BIP32_PATH 10
-#define MAX_SIGNING_TEXT 15
-#define HASH_LENGTH 32
+#include "shared_constants.h"
 
 typedef struct public_key_context_s
 {
@@ -72,6 +69,6 @@ extern tmp_ctx_t tmpCtx;
 extern strings_t strings;
 extern cx_sha3_t sha3;
 
-extern uint8_t app_state;
+extern uint8_t appState;
 
 void resetAppContext(void);

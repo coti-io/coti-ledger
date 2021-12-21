@@ -18,14 +18,14 @@
 
 #include <stdint.h>
 
-static const unsigned char hex_digits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+static const unsigned char hexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 void arrayHexstr(char *strBuf, const void *bin, uint32_t len)
 {
     while (len--)
     {
-        *strBuf++ = hex_digits[((*((char *)bin)) >> 4) & 0xF];
-        *strBuf++ = hex_digits[(*((char *)bin)) & 0xF];
+        *strBuf++ = hexDigits[((*((char *)bin)) >> 4) & 0xF];
+        *strBuf++ = hexDigits[(*((char *)bin)) & 0xF];
         bin = (const void *)((unsigned int)bin + 1);
     }
     *strBuf = 0;

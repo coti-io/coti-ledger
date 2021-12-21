@@ -8,7 +8,7 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
     uint8_t privateKeyData[32];
     uint8_t signature[100];
     cx_ecfp_private_key_t privateKey;
-    uint32_t tx;
+    uint16_t txLength;
     io_seproxyhal_io_heartbeat();
     os_perso_derive_node_bip32(CX_CURVE_256K1, tmpCtx.messageSigningContext.bip32Path, tmpCtx.messageSigningContext.pathLength, privateKeyData, NULL);
     io_seproxyhal_io_heartbeat();
@@ -29,15 +29,15 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
         G_io_apdu_buffer[0] += 2;
     }
     formatSignatureOut(signature);
-    tx = 65;
+    txLength = 65;
     uint16_t sw = SW_OK;
-    G_io_apdu_buffer[tx++] = sw >> 8;
-    G_io_apdu_buffer[tx++] = sw & 0xFF;
+    G_io_apdu_buffer[txLength++] = sw >> 8;
+    G_io_apdu_buffer[txLength++] = sw & 0xFF;
     resetAppContext();
     // Send back the response, do not restart the event loop
-    io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, tx);
+    io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, txLength);
     // Display back the original UX
-    ui_idle();
+    uiIdle();
     // do not redraw the widget
     return 0;
 }
@@ -52,7 +52,7 @@ unsigned int io_seproxyhal_touch_sign_message_cancel(const bagl_element_t *e)
     // Send back the response, do not restart the event loop
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, txLength);
     // Display back the original UX
-    ui_idle();
+    uiIdle();
     // do not redraw the widget
     return 0;
 }

@@ -5,15 +5,15 @@
 
 unsigned int io_seproxyhal_touch_address_ok(const bagl_element_t *e)
 {
-    uint32_t tx = setResultGetPublicKey();
+    uint16_t txLength = setResultGetPublicKey();
     const uint16_t sw = SW_OK;
-    G_io_apdu_buffer[tx++] = sw >> 8;
-    G_io_apdu_buffer[tx++] = sw & 0xFF;
+    G_io_apdu_buffer[txLength++] = sw >> 8;
+    G_io_apdu_buffer[txLength++] = sw & 0xFF;
     resetAppContext();
     // Send back the response, do not restart the event loop
-    io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, tx);
+    io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, txLength);
     // Display back the original UX
-    ui_idle();
+    uiIdle();
     // do not redraw the widget
     return 0;
 }
@@ -27,7 +27,7 @@ unsigned int io_seproxyhal_touch_address_cancel(const bagl_element_t *e)
     // Send back the response, do not restart the event loop
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, 2);
     // Display back the original UX
-    ui_idle();
+    uiIdle();
     // do not redraw the widget
     return 0;
 }
