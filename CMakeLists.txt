@@ -4,7 +4,7 @@ project(coti-ledger-app)
 set(CMAKE_C_STANDARD 11)
 
 set(APP_DOMAIN ./app/src/)
-set(BOLOS_SDK_INCLUDE ../nanos-sdk/include ../nanos-sdk/lib_2uf/include ../nanos-sdk/lib_ux/include)
+set(BOLOS_SDK_INCLUDE ../nanos-sdk/include ../nanos-sdk/lib_2uf/include ../nanos-sdk/lib_ux/include ../nanos-sdk/lib_u2f/include)
 
 include_directories(${APP_DOMAIN})
 include_directories(${BOLOS_SDK_INCLUDE})

@@ -36,7 +36,7 @@ strings_t strings;
 
 cx_sha3_t sha3;
 
-uint8_t app_state;
+uint8_t appState;
 
 #ifdef HAVE_UX_FLOW
 ux_state_t G_ux;
@@ -52,11 +52,11 @@ unsigned int ux_step_count;
 void resetAppContext(void)
 {
     PRINTF("!!RESET_APP_CONTEXT\n");
-    app_state = APP_STATE_IDLE;
+    appState = APP_STATE_IDLE;
     os_memset((uint8_t *)&tmpCtx, 0, sizeof(tmpCtx));
 }
 
-void ui_idle(void)
+void uiIdle(void)
 {
 #if defined(HAVE_UX_FLOW)
     // reserve a display stack slot if none yet
@@ -65,7 +65,7 @@ void ui_idle(void)
         ux_stack_push();
     }
     ux_flow_init(0, ux_idle_flow, NULL);
-#endif // #if TARGET_ID
+#endif // #if defined(HAVE_UX_FLOW)
 }
 
 #if defined(TARGET_NANOS)
@@ -91,7 +91,7 @@ unsigned int ui_address_nanos_button(unsigned int button_mask, unsigned int butt
 void formatSignatureOut(const uint8_t *signature)
 {
     const uint32_t signatureLength = 64;
-    os_memset(G_io_apdu_buffer + 1, 0x00, signatureLength);
+    os_memset(G_io_apdu_buffer + 1, 0, signatureLength);
     uint8_t offset = 1;
     // point to r value
     uint8_t xoffset = 4;
@@ -194,7 +194,7 @@ unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len)
     case CHANNEL_KEYBOARD:
         break;
 
-        // multiplexed io exchange over a SPI channel and TLV encapsulated protocol
+        // multiplexed io exchange over an SPI channel and TLV encapsulated protocol
     case CHANNEL_SPI:
         if (tx_len != 0)
         {
@@ -425,10 +425,14 @@ void app_exit(void)
     END_TRY_L(exit)
 }
 
+void exitCriticalSection(void)
+{
+    __asm volatile("cpsie i");
+}
+
 __attribute__((section(".boot"))) int main(int argc, char *argv[])
 {
-    // exit critical section
-    __asm volatile("cpsie i");
+    exitCriticalSection();
 
     resetAppContext();
 
@@ -452,7 +456,7 @@ __attribute__((section(".boot"))) int main(int argc, char *argv[])
                 USB_power(0);
                 USB_power(1);
 
-                ui_idle();
+                uiIdle();
 
 #ifdef HAVE_BLE
                 BLE_power(0, NULL);

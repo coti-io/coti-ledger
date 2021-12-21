@@ -2,4 +2,4 @@
 
 #include "shared_context.h"
 
-uint32_t setResultGetPublicKey(void);
+uint16_t setResultGetPublicKey(void);
