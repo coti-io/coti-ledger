@@ -19,6 +19,7 @@
 #include "shared_context.h"
 #include "apdu_constants.h"
 #include "apdu_handlers.h"
+#include "apdu_utils.h"
 #include "ui_callbacks.h"
 
 #ifdef HAVE_UX_FLOW
@@ -273,9 +274,7 @@ void handleApdu(uint32_t *flags, uint16_t *txLength)
                 break;
             }
             // Unexpected exception => report
-            G_io_apdu_buffer[*txLength] = sw >> 8;
-            G_io_apdu_buffer[*txLength + 1] = sw & 0xFF;
-            *txLength += 2;
+            setStatusWordToApduBuffer(sw, txLength);
         }
         FINALLY
         {
@@ -354,9 +353,7 @@ void coti_main(void)
                     flags &= (uint8_t)~IO_ASYNCH_REPLY;
                 }
                 // Unexpected exception => report
-                G_io_apdu_buffer[txLength] = sw >> 8;
-                G_io_apdu_buffer[txLength + 1] = sw & 0xFF;
-                txLength += 2;
+                setStatusWordToApduBuffer(sw, &txLength);
             }
             FINALLY
             {
