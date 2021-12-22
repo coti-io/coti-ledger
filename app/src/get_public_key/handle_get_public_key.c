@@ -13,8 +13,10 @@ void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint1
     const uint8_t *dataBufferPtr = dataBuffer;
     uint8_t privateKeyData[32];
     uint32_t bip32Path[MAX_BIP32_PATH];
-    uint8_t bip32PathLength = *(dataBufferPtr++);
+    uint8_t bip32PathLength = *dataBufferPtr;
     cx_ecfp_private_key_t privateKey;
+
+    dataBufferPtr += PATH_LENGTH_BYTES;
 
     resetAppContext();
 
@@ -39,7 +41,7 @@ void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint1
     for (uint32_t i = 0; i < bip32PathLength; ++i)
     {
         bip32Path[i] = U4BE(dataBufferPtr, 0);
-        dataBufferPtr += 4;
+        dataBufferPtr += PATH_PARAMETER_BYTES;
     }
 
     io_seproxyhal_io_heartbeat();
