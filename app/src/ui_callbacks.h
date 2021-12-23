@@ -13,5 +13,3 @@ unsigned int io_seproxyhal_touch_data_ok(const bagl_element_t *e);
 unsigned int io_seproxyhal_touch_data_cancel(const bagl_element_t *e);
 
 void uiIdle(void);
-
-void formatSignatureOut(const uint8_t *signature);
