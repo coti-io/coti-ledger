@@ -29,7 +29,7 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
     {
         G_io_apdu_buffer[0] += 2;
     }
-    formatSignatureOut(signature);
+    setSignatureToApduBuffer(signature);
     txLength = 65;
     uint16_t sw = SW_OK;
     setStatusWordToApduBuffer(sw, &txLength);
