@@ -74,7 +74,7 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
             THROW(SW_INVALID_DATA);
         }
 
-        strcpy(tmpCtx.messageSigningContext.signingTypeText, signing_type_texts[signingType]);
+        os_memmove(tmpCtx.messageSigningContext.signingTypeText, signing_type_texts[signingType], sizeof(tmpCtx.messageSigningContext.signingTypeText));
 
         tmpCtx.messageSigningContext.remainingLength = U4BE(workBufferPtr, 0);
         workBufferPtr += REMAINING_LENGTH_BYTES;
@@ -116,7 +116,7 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         }
         else
         {
-            memcpy(tmpCtx.messageSigningContext.hash, workBufferPtr, sizeof(tmpCtx.messageSigningContext.hash));
+            os_memmove(tmpCtx.messageSigningContext.hash, workBufferPtr, sizeof(tmpCtx.messageSigningContext.hash));
         }
 
         arrayHexstr(strings.tmp.tmp, &tmpCtx.messageSigningContext.hash, sizeof(tmpCtx.messageSigningContext.hash));
