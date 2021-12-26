@@ -32,8 +32,8 @@
 
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
-tmp_ctx_t tmpCtx;
-strings_t strings;
+TmpCtx_t tmpCtx;
+Strings_t strings;
 
 cx_sha3_t sha3;
 
