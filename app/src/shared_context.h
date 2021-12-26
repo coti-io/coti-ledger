@@ -11,27 +11,27 @@
 #include "utils.h"
 #include "shared_constants.h"
 
-typedef struct public_key_context_s
+typedef struct PublicKeyContext
 {
     cx_ecfp_public_key_t publicKey;
-} public_key_context_t;
+} PublicKeyContext_t;
 
-typedef struct message_signing_context_s
+typedef struct MessageSigningContext
 {
     uint8_t pathLength;
     uint32_t bip32Path[MAX_BIP32_PATH];
     char signingTypeText[MAX_SIGNING_TEXT];
     uint8_t hash[HASH_LENGTH];
     uint32_t remainingLength;
-} message_signing_context_t;
+} MessageSigningContext_t;
 
-typedef union tmp_ctx_u
+typedef union TmpCtx
 {
-    public_key_context_t publicKeyContext;
-    message_signing_context_t messageSigningContext;
-} tmp_ctx_t;
+    PublicKeyContext_t publicKeyContext;
+    MessageSigningContext_t messageSigningContext;
+} TmpCtx_t;
 
-typedef enum signing_type_e
+typedef enum SigningType
 {
     MESSAGE,
     FULL_NODE_FEE,
@@ -39,34 +39,34 @@ typedef enum signing_type_e
     BASE_TX,
     TX,
     MAX_SIGNING_TYPE
-} signing_type_t;
+} SigningType_t;
 
-typedef enum app_state_e
+typedef enum AppState
 {
     APP_STATE_IDLE,
     APP_STATE_SIGNING_MESSAGE
-} app_state_t;
+} AppState_t;
 
-typedef struct str_data_s
+typedef struct StrData
 {
     // "0x" + hex public key + '\0'
     char publicKey[65 * 2 + 3];
-} str_data_t;
+} StrData_t;
 
-typedef struct str_data_tmp_s
+typedef struct StrDataTmp
 {
     char tmp[100];
     char tmp2[40];
-} str_data_tmp_t;
+} StrDataTmp_t;
 
-typedef union strings_u
+typedef union Strings
 {
-    str_data_t common;
-    str_data_tmp_t tmp;
-} strings_t;
+    StrData_t common;
+    StrDataTmp_t tmp;
+} Strings_t;
 
-extern tmp_ctx_t tmpCtx;
-extern strings_t strings;
+extern TmpCtx_t tmpCtx;
+extern Strings_t strings;
 extern cx_sha3_t sha3;
 
 extern uint8_t appState;
