@@ -14,24 +14,24 @@ void setSignatureToApduBuffer(const uint8_t *signature)
     os_memset(G_io_apdu_buffer + 1, 0, signatureLength);
     uint8_t offset = 1;
     // point to r value
-    uint8_t xoffset = 4;
+    uint8_t xOffset = 4;
     // copy r
-    uint8_t xlength = signature[xoffset - 1];
-    if (33 == xlength)
+    uint8_t xLength = signature[xOffset - 1];
+    if (33 == xLength)
     {
-        xlength = 32;
-        ++xoffset;
+        xLength = 32;
+        ++xOffset;
     }
-    memmove(G_io_apdu_buffer + offset + 32 - xlength, signature + xoffset, xlength);
+    os_memmove(G_io_apdu_buffer + offset + 32 - xLength, signature + xOffset, xLength);
     offset += 32;
     // move over rvalue and TagLEn
-    xoffset += xlength + 2;
+    xOffset += xLength + 2;
     // copy s value
-    xlength = signature[xoffset - 1];
-    if (33 == xlength)
+    xLength = signature[xOffset - 1];
+    if (33 == xLength)
     {
-        xlength = 32;
-        ++xoffset;
+        xLength = 32;
+        ++xOffset;
     }
-    memmove(G_io_apdu_buffer + offset + 32 - xlength, signature + xoffset, xlength);
+    os_memmove(G_io_apdu_buffer + offset + 32 - xLength, signature + xOffset, xLength);
 }
