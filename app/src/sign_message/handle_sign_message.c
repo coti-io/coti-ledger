@@ -8,7 +8,7 @@
 
 #include "sign_message_constants.h"
 
-void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16_t dataLength, uint32_t *flags, const uint16_t *txLength)
+void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16_t dataLength, uint8_t *flags, const uint16_t *txLength)
 {
     UNUSED(txLength);
     const uint8_t *workBufferPtr = workBuffer;
@@ -41,7 +41,7 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         }
 
         appState = APP_STATE_SIGNING_MESSAGE;
-        tmpCtx.messageSigningContext.pathLength = workBuffer[0];
+        tmpCtx.messageSigningContext.pathLength = workBufferPtr[0];
         if ((tmpCtx.messageSigningContext.pathLength < 0x01) || (tmpCtx.messageSigningContext.pathLength > MAX_BIP32_PATH))
         {
             PRINTF("Invalid path\n");
@@ -74,7 +74,8 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
             THROW(SW_INVALID_DATA);
         }
 
-        os_memmove(tmpCtx.messageSigningContext.signingTypeText, signing_type_texts[signingType], sizeof(tmpCtx.messageSigningContext.signingTypeText));
+        os_memmove(tmpCtx.messageSigningContext.signingTypeText, signing_type_texts[signingType],
+                   sizeof(tmpCtx.messageSigningContext.signingTypeText));
 
         tmpCtx.messageSigningContext.remainingLength = U4BE(workBufferPtr, 0);
         workBufferPtr += REMAINING_LENGTH_BYTES;

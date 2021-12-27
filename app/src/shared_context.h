@@ -20,7 +20,7 @@ typedef struct MessageSigningContext
 {
     uint8_t pathLength;
     uint32_t bip32Path[MAX_BIP32_PATH];
-    char signingTypeText[MAX_SIGNING_TEXT];
+    uint8_t signingTypeText[MAX_SIGNING_TEXT];
     uint8_t hash[HASH_LENGTH];
     uint32_t remainingLength;
 } MessageSigningContext_t;

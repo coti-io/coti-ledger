@@ -7,7 +7,7 @@
 
 #include "get_public_key.h"
 
-void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint16_t dataLength, uint32_t *flags, uint16_t *txLength)
+void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint16_t dataLength, uint8_t *flags, uint16_t *txLength)
 {
     UNUSED(dataLength);
     const uint8_t *dataBufferPtr = dataBuffer;
