@@ -192,7 +192,7 @@ unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len)
     return 0;
 }
 
-void handleApdu(uint32_t *flags, uint16_t *txLength)
+void handleApdu(uint8_t *flags, uint16_t *txLength)
 {
     uint16_t sw;
 
@@ -259,7 +259,7 @@ void coti_main(void)
 {
     uint16_t rxLength;
     uint16_t txLength = 0;
-    uint32_t flags = 0;
+    uint8_t flags = 0;
 
     // DESIGN NOTE: the bootloader ignores the way APDU are fetched. The only
     // goal is to retrieve APDU.

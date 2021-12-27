@@ -35,7 +35,8 @@ root@d83f688268b3:/coti/app# exit
 
 ## Installing the Application
 
-In order to install/uninstall the application, you need to install the `ledgerblue` python module and additional dependencies:
+In order to install/uninstall the application, you need to install the `ledgerblue` python module and additional
+dependencies:
 
 ```bash
 $ xcode-select --install

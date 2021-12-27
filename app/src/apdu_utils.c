@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <string.h>
 #include <os.h>
 
 void setStatusWordToApduBuffer(uint16_t statusWord, uint16_t *txLength)
