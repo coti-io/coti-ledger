@@ -20,16 +20,16 @@ typedef struct MessageSigningContext
 {
     uint8_t pathLength;
     uint32_t bip32Path[MAX_BIP32_PATH];
-    uint8_t signingTypeText[MAX_SIGNING_TEXT];
+    char signingTypeText[MAX_SIGNING_TEXT];
     uint8_t hash[HASH_LENGTH];
     uint32_t remainingLength;
 } MessageSigningContext_t;
 
-typedef union TmpCtx
+typedef union AppContext
 {
     PublicKeyContext_t publicKeyContext;
     MessageSigningContext_t messageSigningContext;
-} TmpCtx_t;
+} AppContext_t;
 
 typedef enum SigningType
 {
@@ -65,10 +65,9 @@ typedef union Strings
     StrDataTmp_t tmp;
 } Strings_t;
 
-extern TmpCtx_t tmpCtx;
+extern AppContext_t appContext;
 extern Strings_t strings;
 extern cx_sha3_t sha3;
 
 extern uint8_t appState;
 
-void resetAppContext(void);

@@ -11,13 +11,13 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
     cx_ecfp_private_key_t privateKey;
     uint16_t txLength;
     io_seproxyhal_io_heartbeat();
-    os_perso_derive_node_bip32(CX_CURVE_256K1, tmpCtx.messageSigningContext.bip32Path, tmpCtx.messageSigningContext.pathLength, privateKeyData, NULL);
+    os_perso_derive_node_bip32(CX_CURVE_256K1, appContext.messageSigningContext.bip32Path, appContext.messageSigningContext.pathLength, privateKeyData, NULL);
     io_seproxyhal_io_heartbeat();
     cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, sizeof(privateKeyData), &privateKey);
     os_memset(privateKeyData, 0, sizeof(privateKeyData));
     uint32_t info = 0;
     io_seproxyhal_io_heartbeat();
-    cx_ecdsa_sign(&privateKey, CX_RND_RFC6979 | CX_LAST, CX_SHA256, tmpCtx.messageSigningContext.hash, sizeof(tmpCtx.messageSigningContext.hash),
+    cx_ecdsa_sign(&privateKey, CX_RND_RFC6979 | CX_LAST, CX_SHA256, appContext.messageSigningContext.hash, sizeof(appContext.messageSigningContext.hash),
                   signature, sizeof(signature), &info);
     os_memset(&privateKey, 0, sizeof(privateKey));
     G_io_apdu_buffer[0] = 27;

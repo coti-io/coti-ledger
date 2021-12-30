@@ -5,7 +5,7 @@ UX_STEP_NOCB(ux_sign_flow_1_step, pnn,
              {
                  &C_icon_certificate,
                  "Sign",
-                 tmpCtx.messageSigningContext.signingTypeText,
+                 appContext.messageSigningContext.signingTypeText,
              });
 UX_STEP_NOCB(ux_sign_flow_2_step, bnnn_paging,
              {
