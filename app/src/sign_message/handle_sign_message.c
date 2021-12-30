@@ -1,5 +1,6 @@
 #include "shared_context.h"
 #include "apdu_constants.h"
+#include "apdu_utils.h"
 #include "utils.h"
 
 #ifdef HAVE_UX_FLOW
@@ -41,8 +42,8 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         }
 
         appState = APP_STATE_SIGNING_MESSAGE;
-        tmpCtx.messageSigningContext.pathLength = workBufferPtr[0];
-        if ((tmpCtx.messageSigningContext.pathLength < 0x01) || (tmpCtx.messageSigningContext.pathLength > MAX_BIP32_PATH))
+        appContext.messageSigningContext.pathLength = workBufferPtr[0];
+        if ((appContext.messageSigningContext.pathLength < 0x01) || (appContext.messageSigningContext.pathLength > MAX_BIP32_PATH))
         {
             PRINTF("Invalid path\n");
             THROW(SW_INVALID_PATH);
@@ -51,15 +52,15 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         workBufferPtr += PATH_LENGTH_BYTES;
         unreadDataLength -= PATH_LENGTH_BYTES;
 
-        if (unreadDataLength < ((PATH_PARAMETER_BYTES * tmpCtx.messageSigningContext.pathLength) + SIGNATURE_TYPE_BYTES + REMAINING_LENGTH_BYTES))
+        if (unreadDataLength < ((PATH_PARAMETER_BYTES * appContext.messageSigningContext.pathLength) + SIGNATURE_TYPE_BYTES + REMAINING_LENGTH_BYTES))
         {
             PRINTF("Invalid data\n");
             THROW(SW_INVALID_DATA);
         }
 
-        for (uint32_t i = 0; i < tmpCtx.messageSigningContext.pathLength; ++i)
+        for (uint32_t i = 0; i < appContext.messageSigningContext.pathLength; ++i)
         {
-            tmpCtx.messageSigningContext.bip32Path[i] = U4BE(workBufferPtr, 0);
+            appContext.messageSigningContext.bip32Path[i] = U4BE(workBufferPtr, 0);
             workBufferPtr += PATH_PARAMETER_BYTES;
             unreadDataLength -= PATH_PARAMETER_BYTES;
         }
@@ -74,10 +75,10 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
             THROW(SW_INVALID_DATA);
         }
 
-        os_memmove(tmpCtx.messageSigningContext.signingTypeText, signing_type_texts[signingType],
-                   sizeof(tmpCtx.messageSigningContext.signingTypeText));
+        os_memmove(appContext.messageSigningContext.signingTypeText, signing_type_texts[signingType],
+                   sizeof(appContext.messageSigningContext.signingTypeText));
 
-        tmpCtx.messageSigningContext.remainingLength = U4BE(workBufferPtr, 0);
+        appContext.messageSigningContext.remainingLength = U4BE(workBufferPtr, 0);
         workBufferPtr += REMAINING_LENGTH_BYTES;
         unreadDataLength -= REMAINING_LENGTH_BYTES;
         if (P2_NOT_HASHED == p2)
@@ -85,7 +86,7 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
 
             cx_keccak_init(&sha3, keccakOutputSize);
         }
-        else if (tmpCtx.messageSigningContext.remainingLength != HASH_LENGTH)
+        else if (appContext.messageSigningContext.remainingLength != HASH_LENGTH)
         {
             PRINTF("Invalid data\n");
             THROW(SW_INVALID_DATA);
@@ -98,7 +99,7 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         THROW(SW_INSTRUCTION_NOT_INITIATED);
     }
 
-    if (unreadDataLength > tmpCtx.messageSigningContext.remainingLength)
+    if (unreadDataLength > appContext.messageSigningContext.remainingLength)
     {
         THROW(SW_INVALID_DATA);
     }
@@ -108,19 +109,20 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         cx_hash((cx_hash_t *)&sha3, 0, workBufferPtr, unreadDataLength, NULL, 0);
     }
 
-    tmpCtx.messageSigningContext.remainingLength -= unreadDataLength;
-    if (0 == tmpCtx.messageSigningContext.remainingLength)
+    appContext.messageSigningContext.remainingLength -= unreadDataLength;
+    if (0 == appContext.messageSigningContext.remainingLength)
     {
         if (P2_NOT_HASHED == p2)
         {
-            cx_hash((cx_hash_t *)&sha3, CX_LAST, workBufferPtr, 0, tmpCtx.messageSigningContext.hash, sizeof(tmpCtx.messageSigningContext.hash));
+            cx_hash((cx_hash_t *)&sha3, CX_LAST, workBufferPtr, 0, appContext.messageSigningContext.hash,
+                    sizeof(appContext.messageSigningContext.hash));
         }
         else
         {
-            os_memmove(tmpCtx.messageSigningContext.hash, workBufferPtr, sizeof(tmpCtx.messageSigningContext.hash));
+            os_memmove(appContext.messageSigningContext.hash, workBufferPtr, sizeof(appContext.messageSigningContext.hash));
         }
 
-        arrayHexstr(strings.tmp.tmp, &tmpCtx.messageSigningContext.hash, sizeof(tmpCtx.messageSigningContext.hash));
+        arrayHexstr(strings.tmp.tmp, &appContext.messageSigningContext.hash, sizeof(appContext.messageSigningContext.hash));
 
         ux_flow_init(0, ux_sign_flow, NULL);
 

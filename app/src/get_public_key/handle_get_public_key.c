@@ -48,7 +48,7 @@ void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint1
     os_perso_derive_node_bip32(CX_CURVE_256K1, bip32Path, bip32PathLength, privateKeyData, NULL);
     cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, sizeof(privateKeyData), &privateKey);
     io_seproxyhal_io_heartbeat();
-    cx_ecfp_generate_pair(CX_CURVE_256K1, &tmpCtx.publicKeyContext.publicKey, &privateKey, 1);
+    cx_ecfp_generate_pair(CX_CURVE_256K1, &appContext.publicKeyContext.publicKey, &privateKey, 1);
     os_memset(&privateKey, 0, sizeof(privateKey));
     os_memset(privateKeyData, 0, sizeof(privateKeyData));
 
@@ -62,8 +62,8 @@ void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint1
         // prepare for a UI based reply
         snprintf(strings.common.publicKey, sizeof(strings.common.publicKey), "0x");
         const uint16_t publicKeyStartIndex = 2;
-        arrayHexstr(&strings.common.publicKey[publicKeyStartIndex], &tmpCtx.publicKeyContext.publicKey.W,
-                    sizeof(tmpCtx.publicKeyContext.publicKey.W));
+        arrayHexstr(&strings.common.publicKey[publicKeyStartIndex], &appContext.publicKeyContext.publicKey.W,
+                    sizeof(appContext.publicKeyContext.publicKey.W));
 
         ux_flow_init(0, ux_display_public_flow, NULL);
 

@@ -1,5 +1,13 @@
 #include <stdint.h>
 #include <os.h>
+#include "shared_context.h"
+
+void resetAppContext(void)
+{
+    PRINTF("!!RESET_APP_CONTEXT\n");
+    appState = APP_STATE_IDLE;
+    os_memset((uint8_t *)&appContext, 0, sizeof(appContext));
+}
 
 void setStatusWordToApduBuffer(uint16_t statusWord, uint16_t *txLength)
 {

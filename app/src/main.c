@@ -32,7 +32,7 @@
 
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
-TmpCtx_t tmpCtx;
+AppContext_t appContext;
 Strings_t strings;
 
 cx_sha3_t sha3;
@@ -49,13 +49,6 @@ ux_state_t ux;
 unsigned int ux_step;
 unsigned int ux_step_count;
 #endif // HAVE_UX_FLOW
-
-void resetAppContext(void)
-{
-    PRINTF("!!RESET_APP_CONTEXT\n");
-    appState = APP_STATE_IDLE;
-    os_memset((uint8_t *)&tmpCtx, 0, sizeof(tmpCtx));
-}
 
 void uiIdle(void)
 {
