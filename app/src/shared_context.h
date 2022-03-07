@@ -70,4 +70,3 @@ extern Strings_t strings;
 extern cx_sha3_t sha3;
 
 extern uint8_t appState;
-
