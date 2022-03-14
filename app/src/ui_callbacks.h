@@ -11,4 +11,3 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e);
 unsigned int io_seproxyhal_touch_sign_message_cancel(const bagl_element_t *e);
 unsigned int io_seproxyhal_touch_data_ok(const bagl_element_t *e);
 unsigned int io_seproxyhal_touch_data_cancel(const bagl_element_t *e);
-

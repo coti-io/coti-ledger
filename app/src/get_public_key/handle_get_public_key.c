@@ -6,6 +6,7 @@
 #endif
 
 #include "get_public_key.h"
+#include "apdu_utils.h"
 
 void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint16_t dataLength, uint8_t *flags, uint16_t *txLength)
 {
@@ -60,9 +61,9 @@ void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint1
     else
     {
         // prepare for a UI based reply
-        snprintf(strings.common.publicKey, sizeof(strings.common.publicKey), "0x");
+        snprintf(displayData.publicKeyDisplayData.publicKey, sizeof(displayData.publicKeyDisplayData.publicKey), "0x");
         const uint16_t publicKeyStartIndex = 2;
-        arrayHexstr(&strings.common.publicKey[publicKeyStartIndex], &appContext.publicKeyContext.publicKey.W,
+        arrayHexstr(&displayData.publicKeyDisplayData.publicKey[publicKeyStartIndex], &appContext.publicKeyContext.publicKey.W,
                     sizeof(appContext.publicKeyContext.publicKey.W));
 
         ux_flow_init(0, ux_display_public_flow, NULL);
