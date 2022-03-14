@@ -20,7 +20,7 @@ typedef struct MessageSigningContext
 {
     uint8_t pathLength;
     uint32_t bip32Path[MAX_BIP32_PATH];
-    char signingTypeText[MAX_SIGNING_TEXT];
+    uint8_t signingType;
     uint8_t hash[HASH_LENGTH];
     uint32_t remainingLength;
 } MessageSigningContext_t;
@@ -47,26 +47,27 @@ typedef enum AppState
     APP_STATE_SIGNING_MESSAGE
 } AppState_t;
 
-typedef struct StrData
+typedef struct PublicKeyDisplayData
 {
     // "0x" + hex public key + '\0'
     char publicKey[65 * 2 + 3];
-} StrData_t;
+} PublicKeyDisplayData_t;
 
-typedef struct StrDataTmp
+typedef struct SignMessageDisplayData
 {
-    char tmp[100];
-    char tmp2[40];
-} StrDataTmp_t;
+    char signMessage[100];
+    char signingTypeText[MAX_SIGNING_TEXT];
 
-typedef union Strings
+} SignMessageDisplayData_t;
+
+typedef union DisplayData
 {
-    StrData_t common;
-    StrDataTmp_t tmp;
-} Strings_t;
+    PublicKeyDisplayData_t publicKeyDisplayData;
+    SignMessageDisplayData_t signMessageDisplayData;
+} DisplayData_t;
 
 extern AppContext_t appContext;
-extern Strings_t strings;
+extern DisplayData_t displayData;
 extern cx_sha3_t sha3;
 
 extern uint8_t appState;

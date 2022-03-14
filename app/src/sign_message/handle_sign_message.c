@@ -65,25 +65,21 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
             unreadDataLength -= PATH_PARAMETER_BYTES;
         }
 
-        uint8_t signingType = workBufferPtr[0];
+        appContext.messageSigningContext.signingType = workBufferPtr[0];
         workBufferPtr += SIGNATURE_TYPE_BYTES;
         unreadDataLength -= SIGNATURE_TYPE_BYTES;
 
-        if (signingType >= MAX_SIGNING_TYPE)
+        if (appContext.messageSigningContext.signingType >= MAX_SIGNING_TYPE)
         {
             PRINTF("Invalid data\n");
             THROW(SW_INVALID_DATA);
         }
-
-        os_memmove(appContext.messageSigningContext.signingTypeText, signing_type_texts[signingType],
-                   sizeof(appContext.messageSigningContext.signingTypeText));
 
         appContext.messageSigningContext.remainingLength = U4BE(workBufferPtr, 0);
         workBufferPtr += REMAINING_LENGTH_BYTES;
         unreadDataLength -= REMAINING_LENGTH_BYTES;
         if (P2_NOT_HASHED == p2)
         {
-
             cx_keccak_init(&sha3, keccakOutputSize);
         }
         else if (appContext.messageSigningContext.remainingLength != HASH_LENGTH)
@@ -122,7 +118,11 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
             os_memmove(appContext.messageSigningContext.hash, workBufferPtr, sizeof(appContext.messageSigningContext.hash));
         }
 
-        arrayHexstr(strings.tmp.tmp, &appContext.messageSigningContext.hash, sizeof(appContext.messageSigningContext.hash));
+        arrayHexstr(displayData.signMessageDisplayData.signMessage, &appContext.messageSigningContext.hash,
+                    sizeof(appContext.messageSigningContext.hash));
+
+        os_memmove(displayData.signMessageDisplayData.signingTypeText, signing_type_texts[appContext.messageSigningContext.signingType],
+                   sizeof(displayData.signMessageDisplayData.signingTypeText));
 
         ux_flow_init(0, ux_sign_flow, NULL);
 

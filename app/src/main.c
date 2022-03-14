@@ -33,7 +33,7 @@
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
 AppContext_t appContext;
-Strings_t strings;
+DisplayData_t displayData;
 
 cx_sha3_t sha3;
 

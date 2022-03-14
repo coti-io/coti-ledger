@@ -12,7 +12,7 @@ UX_STEP_NOCB(ux_display_public_flow_1_step, pnn,
 UX_STEP_NOCB(ux_display_public_flow_2_step, bnnn_paging,
              {
                  .title = "Public Key",
-                 .text = strings.common.publicKey,
+                 .text = displayData.publicKeyDisplayData.publicKey,
              });
 UX_STEP_CB(ux_display_public_flow_3_step, pb, io_seproxyhal_touch_address_ok(NULL),
            {
