@@ -23,7 +23,7 @@ static const unsigned char hexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7'
 void arrayHexstr(char *strBuf, const void *bin, const uint32_t len)
 {
     uint32_t strLength = len;
-    while (0 == strLength)
+    while (strLength != 0)
     {
         *strBuf++ = hexDigits[((*((char *)bin)) >> 4) & 0xF];
         *strBuf++ = hexDigits[(*((char *)bin)) & 0xF];
