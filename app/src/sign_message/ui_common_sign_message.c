@@ -2,6 +2,7 @@
 #include "ui_callbacks.h"
 #include "apdu_constants.h"
 #include "apdu_utils.h"
+#include "ui_flow.h"
 
 unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
 {
