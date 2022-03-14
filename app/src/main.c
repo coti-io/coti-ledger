@@ -141,7 +141,7 @@ unsigned int ui_data_parameter_nanos_button(unsigned int button_mask, unsigned i
 
 #endif // #if defined(TARGET_NANOS)
 
-unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len)
+unsigned short io_exchange_al(unsigned char channel, unsigned short txLength)
 {
     switch (channel & (uint8_t)~IO_FLAGS)
     {
@@ -150,9 +150,9 @@ unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len)
 
         // multiplexed io exchange over an SPI channel and TLV encapsulated protocol
     case CHANNEL_SPI:
-        if (tx_len != 0)
+        if (txLength != 0)
         {
-            io_seproxyhal_spi_send(G_io_apdu_buffer, tx_len);
+            io_seproxyhal_spi_send(G_io_apdu_buffer, txLength);
 
             if ((channel & IO_RESET_AFTER_REPLIED) != 0)
             {
@@ -366,7 +366,7 @@ void appExit(void)
     {
         TRY_L(exit)
         {
-            os_sched_exit(-1);
+            os_sched_exit((bolos_task_status_t)-1);
         }
         FINALLY_L(exit)
         {

@@ -4,7 +4,7 @@
 #include "apdu_utils.h"
 #include "ui_flow.h"
 
-unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
+uint32_t io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
 {
     UNUSED(e);
     uint8_t privateKeyData[32];
@@ -44,7 +44,7 @@ unsigned int io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
     return 0;
 }
 
-unsigned int io_seproxyhal_touch_sign_message_cancel(const bagl_element_t *e)
+uint32_t io_seproxyhal_touch_sign_message_cancel(const bagl_element_t *e)
 {
     resetAppContext();
     uint16_t sw = SW_REJECTED_BY_USER;
