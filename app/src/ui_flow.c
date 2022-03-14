@@ -26,3 +26,15 @@ const ux_flow_step_t *const ux_idle_flow[4] = {
 };
 
 #endif
+
+void uiIdle(void)
+{
+#if defined(HAVE_UX_FLOW)
+    // reserve a display stack slot if none yet
+    if (0 == G_ux.stack_count)
+    {
+        ux_stack_push();
+    }
+    ux_flow_init(0, ux_idle_flow, NULL);
+#endif // #if defined(HAVE_UX_FLOW)
+}

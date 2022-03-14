@@ -50,18 +50,6 @@ unsigned int ux_step;
 unsigned int ux_step_count;
 #endif // HAVE_UX_FLOW
 
-void uiIdle(void)
-{
-#if defined(HAVE_UX_FLOW)
-    // reserve a display stack slot if none yet
-    if (0 == G_ux.stack_count)
-    {
-        ux_stack_push();
-    }
-    ux_flow_init(0, ux_idle_flow, NULL);
-#endif // #if defined(HAVE_UX_FLOW)
-}
-
 #if defined(TARGET_NANOS)
 unsigned int ui_address_nanos_button(unsigned int button_mask, unsigned int button_mask_counter)
 {
@@ -248,7 +236,7 @@ void handleApdu(uint8_t *flags, uint16_t *txLength)
     END_TRY
 }
 
-void coti_main(void)
+void cotiMain(void)
 {
     uint16_t rxLength;
     uint16_t txLength = 0;
@@ -371,7 +359,7 @@ unsigned char io_event(unsigned char channel)
     return 1;
 }
 
-void app_exit(void)
+void appExit(void)
 {
 
     BEGIN_TRY_L(exit)
@@ -424,7 +412,7 @@ __attribute__((section(".boot"))) int main(int argc, char *argv[])
                 BLE_power(0, NULL);
                 BLE_power(1, "Nano X");
 #endif // HAVE_BLE
-                coti_main();
+                cotiMain();
             }
             CATCH(EXCEPTION_IO_RESET)
             {
@@ -444,7 +432,7 @@ __attribute__((section(".boot"))) int main(int argc, char *argv[])
         END_TRY
     }
 
-    app_exit();
+    appExit();
 
     return 0;
 }
