@@ -5,7 +5,7 @@
 #include "apdu_utils.h"
 #include "ui_flow.h"
 
-unsigned int io_seproxyhal_touch_address_ok(const bagl_element_t *e)
+uint32_t io_seproxyhal_touch_address_ok(const bagl_element_t *e)
 {
     uint16_t txLength = setResultGetPublicKey();
     const uint16_t sw = SW_OK;
@@ -19,7 +19,7 @@ unsigned int io_seproxyhal_touch_address_ok(const bagl_element_t *e)
     return 0;
 }
 
-unsigned int io_seproxyhal_touch_address_cancel(const bagl_element_t *e)
+uint32_t io_seproxyhal_touch_address_cancel(const bagl_element_t *e)
 {
     const uint16_t sw = SW_REJECTED_BY_USER;
     uint16_t txLength = 0;
