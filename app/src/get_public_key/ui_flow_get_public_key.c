@@ -9,7 +9,7 @@ UX_STEP_NOCB(ux_display_public_flow_1_step, pnn,
                  "Verify",
                  "Public Key",
              });
-UX_STEP_NOCB(ux_display_public_flow_2_step, bnnn_paging,
+UX_STEP_NOCB(ux_display_public_flow_2_step, paging,
              {
                  .title = "Public Key",
                  .text = displayData.publicKeyDisplayData.publicKey,
@@ -25,7 +25,7 @@ UX_STEP_CB(ux_display_public_flow_4_step, pb, io_seproxyhal_touch_address_cancel
                "Reject",
            });
 
-const ux_flow_step_t *const ux_display_public_flow[5] = {
+const ux_flow_step_t *const uxDisplayPublicFlow[5] = {
     &ux_display_public_flow_1_step, &ux_display_public_flow_2_step, &ux_display_public_flow_3_step, &ux_display_public_flow_4_step, FLOW_END_STEP,
 };
 

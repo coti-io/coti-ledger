@@ -8,6 +8,8 @@
 #include "get_public_key.h"
 #include "apdu_utils.h"
 
+void setPublicKeyDisplayData(void);
+
 void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint16_t dataLength, uint8_t *flags, uint16_t *txLength)
 {
     UNUSED(dataLength);
@@ -60,14 +62,18 @@ void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint1
     }
     else
     {
-        // prepare for a UI based reply
-        snprintf(displayData.publicKeyDisplayData.publicKey, sizeof(displayData.publicKeyDisplayData.publicKey), "0x");
-        const uint16_t publicKeyStartIndex = 2;
-        arrayHexstr(&displayData.publicKeyDisplayData.publicKey[publicKeyStartIndex], &appContext.publicKeyContext.publicKey.W,
-                    sizeof(appContext.publicKeyContext.publicKey.W));
+        setPublicKeyDisplayData();
 
-        ux_flow_init(0, ux_display_public_flow, NULL);
+        ux_flow_init(0, uxDisplayPublicFlow, NULL);
 
         *flags |= IO_ASYNCH_REPLY;
     }
+}
+
+void setPublicKeyDisplayData(void)
+{ // prepare for a UI based reply
+    snprintf(displayData.publicKeyDisplayData.publicKey, sizeof(displayData.publicKeyDisplayData.publicKey), "0x");
+    const uint16_t publicKeyStartIndex = 2;
+    arrayHexstr(&displayData.publicKeyDisplayData.publicKey[publicKeyStartIndex], &appContext.publicKeyContext.publicKey.W,
+                sizeof(appContext.publicKeyContext.publicKey.W));
 }
