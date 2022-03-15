@@ -9,6 +9,10 @@
 
 #include "sign_message_constants.h"
 
+void setSignMessageDisplayData(void);
+
+void uxSignFlowInit(void);
+
 void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16_t dataLength, uint8_t *flags, const uint16_t *txLength)
 {
     UNUSED(txLength);
@@ -29,7 +33,6 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
 
     if (P1_FIRST == p1)
     {
-
         if (unreadDataLength < 1)
         {
             PRINTF("Invalid data\n");
@@ -118,18 +121,38 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
             os_memmove(appContext.messageSigningContext.hash, workBufferPtr, sizeof(appContext.messageSigningContext.hash));
         }
 
-        arrayHexstr(displayData.signMessageDisplayData.signMessage, &appContext.messageSigningContext.hash,
-                    sizeof(appContext.messageSigningContext.hash));
+        setSignMessageDisplayData();
 
-        os_memmove(displayData.signMessageDisplayData.signingTypeText, signing_type_texts[appContext.messageSigningContext.signingType],
-                   sizeof(displayData.signMessageDisplayData.signingTypeText));
-
-        ux_flow_init(0, ux_sign_flow, NULL);
+        uxSignFlowInit();
 
         *flags |= IO_ASYNCH_REPLY;
     }
     else
     {
         THROW(SW_OK);
+    }
+}
+
+void setSignMessageDisplayData(void)
+{
+    arrayHexstr(displayData.signMessageDisplayData.message, &appContext.messageSigningContext.hash, sizeof(appContext.messageSigningContext.hash));
+
+    os_memmove(displayData.signMessageDisplayData.signingTypeText, signing_type_texts[appContext.messageSigningContext.signingType],
+               sizeof(displayData.signMessageDisplayData.signingTypeText));
+}
+
+void uxSignFlowInit(void)
+{
+    switch (appContext.messageSigningContext.signingType)
+    {
+    case BASE_TX:
+        ux_flow_init(0, uxBaseTxFlow, NULL);
+        break;
+    case TX:
+        ux_flow_init(0, uxTxFlow, NULL);
+        break;
+    default:
+        ux_flow_init(0, uxSignFlow, NULL);
+        break;
     }
 }

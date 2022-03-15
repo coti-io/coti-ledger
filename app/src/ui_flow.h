@@ -3,8 +3,10 @@
 #include "shared_context.h"
 #include <ux_flow_engine.h>
 
-extern const ux_flow_step_t *const ux_idle_flow[];
-extern const ux_flow_step_t *const ux_display_public_flow[];
-extern const ux_flow_step_t *const ux_sign_flow[];
+extern const ux_flow_step_t *const uxIdleFlow[];
+extern const ux_flow_step_t *const uxDisplayPublicFlow[];
+extern const ux_flow_step_t *const uxSignFlow[];
+extern const ux_flow_step_t *const uxBaseTxFlow[];
+extern const ux_flow_step_t *const uxTxFlow[];
 
 void uiIdle(void);
