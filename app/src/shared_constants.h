@@ -3,6 +3,7 @@
 #define MAX_BIP32_PATH 10
 #define MAX_SIGNING_TEXT 15
 #define HASH_LENGTH 32
+#define ADDRESS_LENGTH 136
 
 #define BYTE 1
 #define FOUR_BYTES 4
