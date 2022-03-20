@@ -26,7 +26,7 @@ typedef struct MessageSigningContext
     uint32_t processedMessageLength;
     uint8_t amount[50];
     uint32_t amountLength;
-    uint8_t address[136];
+    uint8_t address[ADDRESS_LENGTH];
 } MessageSigningContext_t;
 
 typedef union AppContext

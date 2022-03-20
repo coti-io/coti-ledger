@@ -6,6 +6,21 @@
 #include "sign_message_constants.h"
 #include "apdu_constants.h"
 
+void validateParameters(uint8_t p1, uint8_t p2)
+{
+    if ((p1 != P1_FIRST) && (p1 != P1_MORE))
+    {
+        PRINTF("Incorrect p1\n");
+        THROW(SW_INCORRECT_P1_P2);
+    }
+
+    if ((p2 != P2_HASHED) && (p2 != P2_NOT_HASHED))
+    {
+        PRINTF("Incorrect p2\n");
+        THROW(SW_INCORRECT_P1_P2);
+    }
+}
+
 void setPathLength(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
 {
     appContext.messageSigningContext.pathLength = (*workBufferPtr)[0];
@@ -40,6 +55,84 @@ void setBip32Path(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
         appContext.messageSigningContext.bip32Path[i] = U4BE(*workBufferPtr, 0);
         *workBufferPtr += PATH_PARAMETER_BYTES;
         *unreadDataLength -= PATH_PARAMETER_BYTES;
+    }
+}
+
+void setMessageHash(uint8_t p2, const uint8_t *workBufferPtr)
+{
+    if (P2_NOT_HASHED == p2)
+    {
+        cx_hash((cx_hash_t *)&sha3, CX_LAST, NULL, 0, appContext.messageSigningContext.hash, sizeof(appContext.messageSigningContext.hash));
+    }
+    else
+    {
+        os_memmove(appContext.messageSigningContext.hash, workBufferPtr, sizeof(appContext.messageSigningContext.hash));
+    }
+}
+
+uint32_t getRemainingMessageLength(void)
+{
+    return appContext.messageSigningContext.signMessageLength - appContext.messageSigningContext.processedMessageLength;
+}
+
+bool isFinalRequest(void)
+{
+    bool isFinalRequest;
+    switch (appContext.messageSigningContext.signingType)
+    {
+    case BASE_TX:
+        isFinalRequest = 0 == getRemainingAddressLength();
+        break;
+    case TX:
+        isFinalRequest = 0 == getRemainingAmountLength();
+        break;
+    default:
+        isFinalRequest = appContext.messageSigningContext.processedMessageLength == appContext.messageSigningContext.signMessageLength;
+    }
+    return isFinalRequest;
+}
+
+uint32_t getProcessedAmountLength(void)
+{
+    return (uint32_t)strlen((char *)appContext.messageSigningContext.amount);
+}
+
+uint32_t getRemainingAmountLength(void)
+{
+    return appContext.messageSigningContext.amountLength - getProcessedAmountLength();
+}
+
+void setAmount(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
+{
+    uint32_t processedAmountLength = getProcessedAmountLength();
+    uint32_t remainingAmountLength = getRemainingAmountLength();
+    if (remainingAmountLength != 0)
+    {
+        uint32_t amountLengthToProcess = *unreadDataLength > remainingAmountLength ? remainingAmountLength : *unreadDataLength;
+        os_memmove(&displayData.signMessageDisplayData.amount[processedAmountLength], *workBufferPtr, amountLengthToProcess);
+        *workBufferPtr += amountLengthToProcess;
+        *unreadDataLength -= amountLengthToProcess;
+    }
+}
+
+uint32_t getProcessedAddressLength(void)
+{
+    return (uint32_t)strlen((char *)appContext.messageSigningContext.address);
+}
+
+uint32_t getRemainingAddressLength(void)
+{
+    return ADDRESS_LENGTH - getProcessedAddressLength();
+}
+
+void setAddress(const uint8_t *workBufferPtr, uint16_t unreadDataLength)
+{
+    uint32_t processedAddressLength = getProcessedAddressLength();
+    uint32_t remainingAddressLength = getRemainingAddressLength();
+    if (remainingAddressLength != 0)
+    {
+        uint32_t addressLengthToProcess = unreadDataLength > remainingAddressLength ? remainingAddressLength : unreadDataLength;
+        os_memmove(&displayData.signMessageDisplayData.address[processedAddressLength], workBufferPtr, addressLengthToProcess);
     }
 }
 

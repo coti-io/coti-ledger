@@ -11,17 +11,8 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
     const uint8_t *workBufferPtr = workBuffer;
     uint16_t unreadDataLength = dataLength;
     const uint32_t keccakOutputSize = 256;
-    if ((p1 != P1_FIRST) && (p1 != P1_MORE))
-    {
-        PRINTF("Incorrect p1\n");
-        THROW(SW_INCORRECT_P1_P2);
-    }
 
-    if ((p2 != P2_HASHED) && (p2 != P2_NOT_HASHED))
-    {
-        PRINTF("Incorrect p2\n");
-        THROW(SW_INCORRECT_P1_P2);
-    }
+    validateParameters(p1, p2);
 
     if (P1_FIRST == p1)
     {
@@ -78,27 +69,43 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
     //    {
     //        THROW(SW_INVALID_DATA);
     //    }
-    uint32_t remainingMessageLength = appContext.messageSigningContext.signMessageLength - appContext.messageSigningContext.processedMessageLength;
-    uint32_t messageLengthToProcess = unreadDataLength > remainingMessageLength ? remainingMessageLength : unreadDataLength;
-    if (P2_NOT_HASHED == p2)
+    uint32_t remainingMessageLength = getRemainingMessageLength();
+    if (remainingMessageLength != 0)
     {
-
-        cx_hash((cx_hash_t *)&sha3, 0, workBufferPtr, messageLengthToProcess, NULL, 0);
-    }
-
-    appContext.messageSigningContext.processedMessageLength += messageLengthToProcess;
-
-    if (appContext.messageSigningContext.processedMessageLength == appContext.messageSigningContext.signMessageLength)
-    {
+        uint32_t messageLengthToProcess = unreadDataLength > remainingMessageLength ? remainingMessageLength : unreadDataLength;
         if (P2_NOT_HASHED == p2)
         {
-            cx_hash((cx_hash_t *)&sha3, CX_LAST, NULL, 0, appContext.messageSigningContext.hash, sizeof(appContext.messageSigningContext.hash));
-        }
-        else
-        {
-            os_memmove(appContext.messageSigningContext.hash, workBufferPtr, sizeof(appContext.messageSigningContext.hash));
+            cx_hash((cx_hash_t *)&sha3, 0, workBufferPtr, messageLengthToProcess, NULL, 0);
         }
 
+        appContext.messageSigningContext.processedMessageLength += messageLengthToProcess;
+        if (0 == getRemainingMessageLength())
+        {
+            setMessageHash(p2, workBufferPtr);
+        }
+        workBufferPtr += messageLengthToProcess;
+        unreadDataLength -= messageLengthToProcess;
+    }
+    if ((TX == appContext.messageSigningContext.signingType) || (BASE_TX == appContext.messageSigningContext.signingType))
+    {
+        if ((unreadDataLength != 0) && (0 == appContext.messageSigningContext.amountLength))
+        {
+
+            appContext.messageSigningContext.amountLength = U4BE(workBufferPtr, 0);
+            workBufferPtr += PARAMETER_LENGTH_BYTES;
+            unreadDataLength -= PARAMETER_LENGTH_BYTES;
+        }
+        if (unreadDataLength != 0)
+        {
+            setAmount(&workBufferPtr, &unreadDataLength);
+        }
+        if ((unreadDataLength != 0) && (BASE_TX == appContext.messageSigningContext.signingType))
+        {
+            setAddress(workBufferPtr, unreadDataLength);
+        }
+    }
+    if (isFinalRequest())
+    {
         setSignMessageDisplayData();
 
         uxSignFlowInit();
