@@ -78,14 +78,14 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
             THROW(SW_INVALID_DATA);
         }
 
-        appContext.messageSigningContext.remainingLength = U4BE(workBufferPtr, 0);
+        appContext.messageSigningContext.remainingMessageLength = U4BE(workBufferPtr, 0);
         workBufferPtr += REMAINING_LENGTH_BYTES;
         unreadDataLength -= REMAINING_LENGTH_BYTES;
         if (P2_NOT_HASHED == p2)
         {
             cx_keccak_init(&sha3, keccakOutputSize);
         }
-        else if (appContext.messageSigningContext.remainingLength != HASH_LENGTH)
+        else if (appContext.messageSigningContext.remainingMessageLength != HASH_LENGTH)
         {
             PRINTF("Invalid data\n");
             THROW(SW_INVALID_DATA);
@@ -98,7 +98,7 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         THROW(SW_INSTRUCTION_NOT_INITIATED);
     }
 
-    if (unreadDataLength > appContext.messageSigningContext.remainingLength)
+    if (unreadDataLength > appContext.messageSigningContext.remainingMessageLength)
     {
         THROW(SW_INVALID_DATA);
     }
@@ -108,12 +108,12 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         cx_hash((cx_hash_t *)&sha3, 0, workBufferPtr, unreadDataLength, NULL, 0);
     }
 
-    appContext.messageSigningContext.remainingLength -= unreadDataLength;
-    if (0 == appContext.messageSigningContext.remainingLength)
+    appContext.messageSigningContext.remainingMessageLength -= unreadDataLength;
+    if (0 == appContext.messageSigningContext.remainingMessageLength)
     {
         if (P2_NOT_HASHED == p2)
         {
-            cx_hash((cx_hash_t *)&sha3, CX_LAST, workBufferPtr, 0, appContext.messageSigningContext.hash,
+            cx_hash((cx_hash_t *)&sha3, CX_LAST, NULL, 0, appContext.messageSigningContext.hash,
                     sizeof(appContext.messageSigningContext.hash));
         }
         else

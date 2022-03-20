@@ -22,7 +22,9 @@ typedef struct MessageSigningContext
     uint32_t bip32Path[MAX_BIP32_PATH];
     uint8_t signingType;
     uint8_t hash[HASH_LENGTH];
-    uint32_t remainingLength;
+    uint32_t remainingMessageLength;
+    uint8_t amount[50];
+    uint32_t address[136];
 } MessageSigningContext_t;
 
 typedef union AppContext
@@ -57,7 +59,7 @@ typedef struct SignMessageDisplayData
 {
     char message[100];
     char signingTypeText[MAX_SIGNING_TEXT];
-    char amount[50];
+    char amount[25];
     char address[136];
 } SignMessageDisplayData_t;
 
