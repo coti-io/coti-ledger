@@ -13,6 +13,14 @@ void setSignMessageDisplayData(void);
 
 void uxSignFlowInit(void);
 
+void setBip32Path(const uint8_t **workBufferPtr, uint16_t *unreadDataLength);
+
+void setSigningType(const uint8_t **workBufferPtr, uint16_t *unreadDataLength);
+
+void setMessageLength(const uint8_t **workBufferPtr, uint16_t *unreadDataLength);
+
+void setPathLength(const uint8_t **workBufferPtr, uint16_t *unreadDataLength);
+
 void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16_t dataLength, uint8_t *flags, const uint16_t *txLength)
 {
     UNUSED(txLength);
@@ -45,32 +53,18 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         }
 
         appState = APP_STATE_SIGNING_MESSAGE;
-        appContext.messageSigningContext.pathLength = workBufferPtr[0];
-        if ((appContext.messageSigningContext.pathLength < 0x01) || (appContext.messageSigningContext.pathLength > MAX_BIP32_PATH))
-        {
-            PRINTF("Invalid path\n");
-            THROW(SW_INVALID_PATH);
-        }
 
-        workBufferPtr += PATH_LENGTH_BYTES;
-        unreadDataLength -= PATH_LENGTH_BYTES;
+        setPathLength(&workBufferPtr, &unreadDataLength);
 
-        if (unreadDataLength < ((PATH_PARAMETER_BYTES * appContext.messageSigningContext.pathLength) + SIGNATURE_TYPE_BYTES + REMAINING_LENGTH_BYTES))
+        if (unreadDataLength < ((PATH_PARAMETER_BYTES * appContext.messageSigningContext.pathLength) + SIGNATURE_TYPE_BYTES + PARAMETER_LENGTH_BYTES))
         {
             PRINTF("Invalid data\n");
             THROW(SW_INVALID_DATA);
         }
 
-        for (uint32_t i = 0; i < appContext.messageSigningContext.pathLength; ++i)
-        {
-            appContext.messageSigningContext.bip32Path[i] = U4BE(workBufferPtr, 0);
-            workBufferPtr += PATH_PARAMETER_BYTES;
-            unreadDataLength -= PATH_PARAMETER_BYTES;
-        }
+        setBip32Path(&workBufferPtr, &unreadDataLength);
 
-        appContext.messageSigningContext.signingType = workBufferPtr[0];
-        workBufferPtr += SIGNATURE_TYPE_BYTES;
-        unreadDataLength -= SIGNATURE_TYPE_BYTES;
+        setSigningType(&workBufferPtr, &unreadDataLength);
 
         if (appContext.messageSigningContext.signingType >= MAX_SIGNING_TYPE)
         {
@@ -78,14 +72,12 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
             THROW(SW_INVALID_DATA);
         }
 
-        appContext.messageSigningContext.remainingMessageLength = U4BE(workBufferPtr, 0);
-        workBufferPtr += REMAINING_LENGTH_BYTES;
-        unreadDataLength -= REMAINING_LENGTH_BYTES;
+        setMessageLength(&workBufferPtr, &unreadDataLength);
         if (P2_NOT_HASHED == p2)
         {
             cx_keccak_init(&sha3, keccakOutputSize);
         }
-        else if (appContext.messageSigningContext.remainingMessageLength != HASH_LENGTH)
+        else if (appContext.messageSigningContext.signMessageLength != HASH_LENGTH)
         {
             PRINTF("Invalid data\n");
             THROW(SW_INVALID_DATA);
@@ -98,23 +90,25 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         THROW(SW_INSTRUCTION_NOT_INITIATED);
     }
 
-    if (unreadDataLength > appContext.messageSigningContext.remainingMessageLength)
-    {
-        THROW(SW_INVALID_DATA);
-    }
-
+    //    if (unreadDataLength > appContext.messageSigningContext.signMessageLength)
+    //    {
+    //        THROW(SW_INVALID_DATA);
+    //    }
+    uint32_t remainingMessageLength = appContext.messageSigningContext.signMessageLength - appContext.messageSigningContext.processedMessageLength;
+    uint32_t messageLengthToProcess = unreadDataLength > remainingMessageLength ? remainingMessageLength : unreadDataLength;
     if (P2_NOT_HASHED == p2)
     {
-        cx_hash((cx_hash_t *)&sha3, 0, workBufferPtr, unreadDataLength, NULL, 0);
+
+        cx_hash((cx_hash_t *)&sha3, 0, workBufferPtr, messageLengthToProcess, NULL, 0);
     }
 
-    appContext.messageSigningContext.remainingMessageLength -= unreadDataLength;
-    if (0 == appContext.messageSigningContext.remainingMessageLength)
+    appContext.messageSigningContext.processedMessageLength += messageLengthToProcess;
+
+    if (appContext.messageSigningContext.processedMessageLength == appContext.messageSigningContext.signMessageLength)
     {
         if (P2_NOT_HASHED == p2)
         {
-            cx_hash((cx_hash_t *)&sha3, CX_LAST, NULL, 0, appContext.messageSigningContext.hash,
-                    sizeof(appContext.messageSigningContext.hash));
+            cx_hash((cx_hash_t *)&sha3, CX_LAST, NULL, 0, appContext.messageSigningContext.hash, sizeof(appContext.messageSigningContext.hash));
         }
         else
         {
@@ -130,6 +124,42 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
     else
     {
         THROW(SW_OK);
+    }
+}
+void setPathLength(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
+{
+    appContext.messageSigningContext.pathLength = (*workBufferPtr)[0];
+    if ((appContext.messageSigningContext.pathLength < 0x01) || (appContext.messageSigningContext.pathLength > MAX_BIP32_PATH))
+    {
+        PRINTF("Invalid path\n");
+        THROW(SW_INVALID_PATH);
+    }
+
+    *workBufferPtr += PATH_LENGTH_BYTES;
+    *unreadDataLength -= PATH_LENGTH_BYTES;
+}
+
+void setMessageLength(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
+{
+    appContext.messageSigningContext.signMessageLength = U4BE(*workBufferPtr, 0);
+    *workBufferPtr += PARAMETER_LENGTH_BYTES;
+    *unreadDataLength -= PARAMETER_LENGTH_BYTES;
+}
+
+void setSigningType(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
+{
+    appContext.messageSigningContext.signingType = (*workBufferPtr)[0];
+    *workBufferPtr += SIGNATURE_TYPE_BYTES;
+    *unreadDataLength -= SIGNATURE_TYPE_BYTES;
+}
+
+void setBip32Path(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
+{
+    for (uint32_t i = 0; i < appContext.messageSigningContext.pathLength; ++i)
+    {
+        appContext.messageSigningContext.bip32Path[i] = U4BE(*workBufferPtr, 0);
+        *workBufferPtr += PATH_PARAMETER_BYTES;
+        *unreadDataLength -= PATH_PARAMETER_BYTES;
     }
 }
 
