@@ -132,7 +132,7 @@ void setAmount(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
         if (remainingAmountLength != 0)
         {
             uint32_t amountLengthToProcess = *unreadDataLength > remainingAmountLength ? remainingAmountLength : *unreadDataLength;
-            os_memmove(&displayData.signMessageDisplayData.amount[processedAmountLength], *workBufferPtr, amountLengthToProcess);
+            os_memmove(&appContext.messageSigningContext.amount[processedAmountLength], *workBufferPtr, amountLengthToProcess);
             *workBufferPtr += amountLengthToProcess;
             *unreadDataLength -= amountLengthToProcess;
         }
@@ -158,7 +158,7 @@ void setAddress(const uint8_t *workBufferPtr, uint16_t unreadDataLength)
         if (remainingAddressLength != 0)
         {
             uint32_t addressLengthToProcess = unreadDataLength > remainingAddressLength ? remainingAddressLength : unreadDataLength;
-            os_memmove(&displayData.signMessageDisplayData.address[processedAddressLength], workBufferPtr, addressLengthToProcess);
+            os_memmove(&appContext.messageSigningContext.address[processedAddressLength], workBufferPtr, addressLengthToProcess);
         }
     }
 }
@@ -169,6 +169,14 @@ void setSignMessageDisplayData(void)
 
     os_memmove(displayData.signMessageDisplayData.signingTypeText, signing_type_texts[appContext.messageSigningContext.signingType],
                sizeof(displayData.signMessageDisplayData.signingTypeText));
+    if (getProcessedAmountLength() != 0)
+    {
+        os_memmove(displayData.signMessageDisplayData.amount, appContext.messageSigningContext.amount, getProcessedAmountLength());
+    }
+    if (getProcessedAddressLength() != 0)
+    {
+        os_memmove(displayData.signMessageDisplayData.address, appContext.messageSigningContext.address, getProcessedAddressLength());
+    }
 }
 
 void uxSignFlowInit(void)
