@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 void validateParameters(uint8_t p1, uint8_t p2);
+void setMessage(uint8_t p2, const uint8_t **workBufferPtr, uint16_t *unreadDataLength);
 void setMessageHash(uint8_t p2, const uint8_t *workBufferPtr);
 uint32_t getRemainingMessageLength(void);
 uint32_t getProcessedAmountLength(void);

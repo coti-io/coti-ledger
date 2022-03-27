@@ -14,14 +14,14 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
 
     validateParameters(p1, p2);
 
+    if (0 == unreadDataLength)
+    {
+        PRINTF("Invalid data\n");
+        THROW(SW_INVALID_DATA);
+    }
+
     if (P1_FIRST == p1)
     {
-        if (unreadDataLength < 1)
-        {
-            PRINTF("Invalid data\n");
-            THROW(SW_INVALID_DATA);
-        }
-
         if (appState != APP_STATE_IDLE)
         {
             resetAppContext();
@@ -30,8 +30,9 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         appState = APP_STATE_SIGNING_MESSAGE;
 
         setPathLength(&workBufferPtr, &unreadDataLength);
-
-        if (unreadDataLength < ((PATH_PARAMETER_BYTES * appContext.messageSigningContext.pathLength) + SIGNATURE_TYPE_BYTES + PARAMETER_LENGTH_BYTES))
+        uint8_t minimalFirstRequestByteNumber =
+            PATH_LENGTH_BYTES + (PATH_PARAMETER_BYTES * appContext.messageSigningContext.pathLength) + SIGNATURE_TYPE_BYTES + PARAMETER_LENGTH_BYTES;
+        if (dataLength < minimalFirstRequestByteNumber)
         {
             PRINTF("Invalid data\n");
             THROW(SW_INVALID_DATA);
@@ -46,8 +47,20 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
             PRINTF("Invalid data\n");
             THROW(SW_INVALID_DATA);
         }
-
         setMessageLength(&workBufferPtr, &unreadDataLength);
+
+        if ((TX == appContext.messageSigningContext.signingType) || (BASE_TX == appContext.messageSigningContext.signingType))
+        {
+            if (0 == unreadDataLength)
+            {
+                PRINTF("Invalid data\n");
+                THROW(SW_INVALID_DATA);
+            }
+            appContext.messageSigningContext.amountLength = U4BE(workBufferPtr, 0);
+            workBufferPtr += PARAMETER_LENGTH_BYTES;
+            unreadDataLength -= PARAMETER_LENGTH_BYTES;
+        }
+
         if (P2_NOT_HASHED == p2)
         {
             cx_keccak_init(&sha3, keccakOutputSize);
@@ -65,44 +78,12 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
         THROW(SW_INSTRUCTION_NOT_INITIATED);
     }
 
-    //    if (unreadDataLength > appContext.messageSigningContext.signMessageLength)
-    //    {
-    //        THROW(SW_INVALID_DATA);
-    //    }
-    uint32_t remainingMessageLength = getRemainingMessageLength();
-    if (remainingMessageLength != 0)
-    {
-        uint32_t messageLengthToProcess = unreadDataLength > remainingMessageLength ? remainingMessageLength : unreadDataLength;
-        if (P2_NOT_HASHED == p2)
-        {
-            cx_hash((cx_hash_t *)&sha3, 0, workBufferPtr, messageLengthToProcess, NULL, 0);
-        }
+    setMessage(p2, &workBufferPtr, &unreadDataLength);
 
-        appContext.messageSigningContext.processedMessageLength += messageLengthToProcess;
-        if (0 == getRemainingMessageLength())
-        {
-            setMessageHash(p2, workBufferPtr);
-        }
-        workBufferPtr += messageLengthToProcess;
-        unreadDataLength -= messageLengthToProcess;
-    }
     if ((TX == appContext.messageSigningContext.signingType) || (BASE_TX == appContext.messageSigningContext.signingType))
     {
-        if ((unreadDataLength != 0) && (0 == appContext.messageSigningContext.amountLength))
-        {
-
-            appContext.messageSigningContext.amountLength = U4BE(workBufferPtr, 0);
-            workBufferPtr += PARAMETER_LENGTH_BYTES;
-            unreadDataLength -= PARAMETER_LENGTH_BYTES;
-        }
-        if (unreadDataLength != 0)
-        {
-            setAmount(&workBufferPtr, &unreadDataLength);
-        }
-        if ((unreadDataLength != 0) && (BASE_TX == appContext.messageSigningContext.signingType))
-        {
-            setAddress(workBufferPtr, unreadDataLength);
-        }
+        setAmount(&workBufferPtr, &unreadDataLength);
+        setAddress(workBufferPtr, unreadDataLength);
     }
     if (isFinalRequest())
     {
