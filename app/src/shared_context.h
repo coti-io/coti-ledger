@@ -18,6 +18,7 @@ typedef struct PublicKeyContext
 
 typedef struct MessageSigningContext
 {
+    uint8_t minimalFirstRequestByteNumber;
     uint8_t pathLength;
     uint32_t bip32Path[MAX_BIP32_PATH];
     uint8_t signingType;

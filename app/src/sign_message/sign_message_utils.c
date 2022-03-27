@@ -58,6 +58,27 @@ void setBip32Path(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
     }
 }
 
+void setMessage(uint8_t p2, const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
+{
+    uint32_t remainingMessageLength = getRemainingMessageLength();
+    if (remainingMessageLength != 0)
+    {
+        uint32_t messageLengthToProcess = (*unreadDataLength) > remainingMessageLength ? remainingMessageLength : (*unreadDataLength);
+        if (P2_NOT_HASHED == p2)
+        {
+            cx_hash((cx_hash_t *)&sha3, 0, (*workBufferPtr), messageLengthToProcess, NULL, 0);
+        }
+
+        appContext.messageSigningContext.processedMessageLength += messageLengthToProcess;
+        if (0 == getRemainingMessageLength())
+        {
+            setMessageHash(p2, (*workBufferPtr));
+        }
+        (*workBufferPtr) += messageLengthToProcess;
+        (*unreadDataLength) -= messageLengthToProcess;
+    }
+}
+
 void setMessageHash(uint8_t p2, const uint8_t *workBufferPtr)
 {
     if (P2_NOT_HASHED == p2)
@@ -104,14 +125,17 @@ uint32_t getRemainingAmountLength(void)
 
 void setAmount(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
 {
-    uint32_t processedAmountLength = getProcessedAmountLength();
-    uint32_t remainingAmountLength = getRemainingAmountLength();
-    if (remainingAmountLength != 0)
+    if (*unreadDataLength != 0)
     {
-        uint32_t amountLengthToProcess = *unreadDataLength > remainingAmountLength ? remainingAmountLength : *unreadDataLength;
-        os_memmove(&displayData.signMessageDisplayData.amount[processedAmountLength], *workBufferPtr, amountLengthToProcess);
-        *workBufferPtr += amountLengthToProcess;
-        *unreadDataLength -= amountLengthToProcess;
+        uint32_t processedAmountLength = getProcessedAmountLength();
+        uint32_t remainingAmountLength = getRemainingAmountLength();
+        if (remainingAmountLength != 0)
+        {
+            uint32_t amountLengthToProcess = *unreadDataLength > remainingAmountLength ? remainingAmountLength : *unreadDataLength;
+            os_memmove(&displayData.signMessageDisplayData.amount[processedAmountLength], *workBufferPtr, amountLengthToProcess);
+            *workBufferPtr += amountLengthToProcess;
+            *unreadDataLength -= amountLengthToProcess;
+        }
     }
 }
 
@@ -127,12 +151,15 @@ uint32_t getRemainingAddressLength(void)
 
 void setAddress(const uint8_t *workBufferPtr, uint16_t unreadDataLength)
 {
-    uint32_t processedAddressLength = getProcessedAddressLength();
-    uint32_t remainingAddressLength = getRemainingAddressLength();
-    if (remainingAddressLength != 0)
+    if (unreadDataLength != 0)
     {
-        uint32_t addressLengthToProcess = unreadDataLength > remainingAddressLength ? remainingAddressLength : unreadDataLength;
-        os_memmove(&displayData.signMessageDisplayData.address[processedAddressLength], workBufferPtr, addressLengthToProcess);
+        uint32_t processedAddressLength = getProcessedAddressLength();
+        uint32_t remainingAddressLength = getRemainingAddressLength();
+        if (remainingAddressLength != 0)
+        {
+            uint32_t addressLengthToProcess = unreadDataLength > remainingAddressLength ? remainingAddressLength : unreadDataLength;
+            os_memmove(&displayData.signMessageDisplayData.address[processedAddressLength], workBufferPtr, addressLengthToProcess);
+        }
     }
 }
 
