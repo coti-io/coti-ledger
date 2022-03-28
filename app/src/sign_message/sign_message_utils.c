@@ -41,6 +41,13 @@ void setMessageLength(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
     *unreadDataLength -= PARAMETER_LENGTH_BYTES;
 }
 
+void setAmountLength(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
+{
+    appContext.messageSigningContext.amountLength = U4BE(*workBufferPtr, 0);
+    *workBufferPtr += PARAMETER_LENGTH_BYTES;
+    *unreadDataLength -= PARAMETER_LENGTH_BYTES;
+}
+
 void setSigningType(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
 {
     appContext.messageSigningContext.signingType = (*workBufferPtr)[0];
@@ -176,6 +183,7 @@ void setSignMessageDisplayData(void)
     if (getProcessedAddressLength() != 0)
     {
         os_memmove(displayData.signMessageDisplayData.address, appContext.messageSigningContext.address, getProcessedAddressLength());
+        displayData.signMessageDisplayData.address[ADDRESS_LENGTH] = 0;
     }
 }
 

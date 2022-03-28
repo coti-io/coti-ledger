@@ -56,9 +56,7 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
                 PRINTF("Invalid data\n");
                 THROW(SW_INVALID_DATA);
             }
-            appContext.messageSigningContext.amountLength = U4BE(workBufferPtr, 0);
-            workBufferPtr += PARAMETER_LENGTH_BYTES;
-            unreadDataLength -= PARAMETER_LENGTH_BYTES;
+            setAmountLength(&workBufferPtr, &unreadDataLength);
         }
 
         if (P2_NOT_HASHED == p2)

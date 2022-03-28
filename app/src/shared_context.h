@@ -24,7 +24,7 @@ typedef struct MessageSigningContext
     uint8_t hash[HASH_LENGTH];
     uint32_t signMessageLength;
     uint32_t processedMessageLength;
-    uint8_t amount[50];
+    uint8_t amount[MAX_AMOUNT_LENGTH];
     uint32_t amountLength;
     uint8_t address[ADDRESS_LENGTH];
 } MessageSigningContext_t;
@@ -61,8 +61,8 @@ typedef struct SignMessageDisplayData
 {
     char message[100];
     char signingTypeText[MAX_SIGNING_TEXT];
-    char amount[25];
-    char address[136];
+    char amount[MAX_AMOUNT_LENGTH + 1];
+    char address[ADDRESS_LENGTH + 1];
 } SignMessageDisplayData_t;
 
 typedef union DisplayData
