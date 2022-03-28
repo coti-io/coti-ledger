@@ -4,6 +4,7 @@
 #define MAX_SIGNING_TEXT 15
 #define HASH_LENGTH 32
 #define ADDRESS_LENGTH 136
+#define MAX_AMOUNT_LENGTH 50
 
 #define BYTE 1
 #define FOUR_BYTES 4
