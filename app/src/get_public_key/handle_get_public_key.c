@@ -45,7 +45,7 @@ void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint1
         dataBufferPtr += PATH_PARAMETER_BYTES;
     }
 
-    setPublicKey(privateKeyData, bip32Path, bip32PathLength, &privateKey);
+    setPublicKey(privateKeyData, sizeof(privateKeyData), bip32Path, bip32PathLength, &privateKey);
 
     if (P1_NON_CONFIRM == p1)
     {

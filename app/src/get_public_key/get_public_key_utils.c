@@ -1,14 +1,15 @@
 #include "shared_context.h"
 
-void setPublicKey(uint8_t *privateKeyData, const uint32_t *bip32Path, uint8_t bip32PathLength, cx_ecfp_private_key_t *privateKey)
+void setPublicKey(uint8_t *privateKeyData, uint32_t privateKeyDataLength, const uint32_t *bip32Path, uint8_t bip32PathLength,
+                  cx_ecfp_private_key_t *privateKey)
 {
     io_seproxyhal_io_heartbeat();
     os_perso_derive_node_bip32(CX_CURVE_256K1, bip32Path, bip32PathLength, privateKeyData, NULL);
-    cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, sizeof(privateKeyData), privateKey);
+    cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, privateKeyDataLength, privateKey);
     io_seproxyhal_io_heartbeat();
     cx_ecfp_generate_pair(CX_CURVE_256K1, &appContext.publicKeyContext.publicKey, privateKey, 1);
-    os_memset(privateKey, 0, sizeof((*privateKey)));
-    os_memset(privateKeyData, 0, sizeof(privateKeyData));
+    os_memset(privateKey, 0, sizeof(*privateKey));
+    os_memset(privateKeyData, 0, privateKeyDataLength);
 }
 
 uint16_t setPublicKeyToApduBuffer(void)
