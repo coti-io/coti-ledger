@@ -59,8 +59,8 @@ typedef struct PublicKeyDisplayData
 
 typedef struct SignMessageDisplayData
 {
-    char message[100];
-    char signingTypeText[MAX_SIGNING_TEXT];
+    char message[2 * HASH_LENGTH + 1];
+    char signingTypeText[MAX_SIGNING_TEXT + 1];
     char amount[MAX_AMOUNT_LENGTH + 1];
     char address[ADDRESS_LENGTH + 1];
 } SignMessageDisplayData_t;

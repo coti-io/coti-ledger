@@ -5,10 +5,8 @@
 #include "ui_flow.h"
 #endif
 
-#include "get_public_key.h"
+#include "get_public_key_utils.h"
 #include "apdu_utils.h"
-
-void setPublicKeyDisplayData(void);
 
 void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint16_t dataLength, uint8_t *flags, uint16_t *txLength)
 {
@@ -47,17 +45,12 @@ void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint1
         dataBufferPtr += PATH_PARAMETER_BYTES;
     }
 
-    io_seproxyhal_io_heartbeat();
-    os_perso_derive_node_bip32(CX_CURVE_256K1, bip32Path, bip32PathLength, privateKeyData, NULL);
-    cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, sizeof(privateKeyData), &privateKey);
-    io_seproxyhal_io_heartbeat();
-    cx_ecfp_generate_pair(CX_CURVE_256K1, &appContext.publicKeyContext.publicKey, &privateKey, 1);
-    os_memset(&privateKey, 0, sizeof(privateKey));
-    os_memset(privateKeyData, 0, sizeof(privateKeyData));
+    setPublicKey(privateKeyData, bip32Path, bip32PathLength, &privateKey);
 
     if (P1_NON_CONFIRM == p1)
     {
-        *txLength = setResultGetPublicKey();
+        *txLength = setPublicKeyToApduBuffer();
+        resetAppContext();
         THROW(SW_OK);
     }
     else
@@ -68,12 +61,4 @@ void handleGetPublicKey(uint8_t p1, uint8_t p2, const uint8_t *dataBuffer, uint1
 
         *flags |= IO_ASYNCH_REPLY;
     }
-}
-
-void setPublicKeyDisplayData(void)
-{ // prepare for a UI based reply
-    snprintf(displayData.publicKeyDisplayData.publicKey, sizeof(displayData.publicKeyDisplayData.publicKey), "0x");
-    const uint16_t publicKeyStartIndex = 2;
-    arrayHexstr(&displayData.publicKeyDisplayData.publicKey[publicKeyStartIndex], &appContext.publicKeyContext.publicKey.W,
-                sizeof(appContext.publicKeyContext.publicKey.W));
 }

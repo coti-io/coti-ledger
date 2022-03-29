@@ -46,6 +46,11 @@ void setAmountLength(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
     appContext.messageSigningContext.amountLength = U4BE(*workBufferPtr, 0);
     *workBufferPtr += PARAMETER_LENGTH_BYTES;
     *unreadDataLength -= PARAMETER_LENGTH_BYTES;
+    if (appContext.messageSigningContext.amountLength > MAX_AMOUNT_LENGTH)
+    {
+        PRINTF("Invalid data\n");
+        THROW(SW_INVALID_DATA);
+    }
 }
 
 void setSigningType(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
@@ -53,6 +58,11 @@ void setSigningType(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
     appContext.messageSigningContext.signingType = (*workBufferPtr)[0];
     *workBufferPtr += SIGNATURE_TYPE_BYTES;
     *unreadDataLength -= SIGNATURE_TYPE_BYTES;
+    if (appContext.messageSigningContext.signingType >= MAX_SIGNING_TYPE)
+    {
+        PRINTF("Invalid data\n");
+        THROW(SW_INVALID_DATA);
+    }
 }
 
 void setBip32Path(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)

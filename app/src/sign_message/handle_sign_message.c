@@ -42,11 +42,6 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
 
         setSigningType(&workBufferPtr, &unreadDataLength);
 
-        if (appContext.messageSigningContext.signingType >= MAX_SIGNING_TYPE)
-        {
-            PRINTF("Invalid data\n");
-            THROW(SW_INVALID_DATA);
-        }
         setMessageLength(&workBufferPtr, &unreadDataLength);
 
         if ((TX == appContext.messageSigningContext.signingType) || (BASE_TX == appContext.messageSigningContext.signingType))
@@ -58,7 +53,6 @@ void handleSignMessage(uint8_t p1, uint8_t p2, const uint8_t *workBuffer, uint16
             }
             setAmountLength(&workBufferPtr, &unreadDataLength);
         }
-
         if (P2_NOT_HASHED == p2)
         {
             cx_keccak_init(&sha3, keccakOutputSize);
