@@ -61,7 +61,7 @@ typedef struct SignMessageDisplayData
 {
     char message[2 * HASH_LENGTH + 1];
     char signingTypeText[MAX_SIGNING_TEXT + 1];
-    char amount[MAX_AMOUNT_LENGTH + 1];
+    char amount[MAX_AMOUNT_LENGTH + COTI_STRING_LENGTH + 1];
     char address[ADDRESS_LENGTH + 1];
 } SignMessageDisplayData_t;
 

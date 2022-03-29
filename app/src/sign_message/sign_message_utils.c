@@ -184,15 +184,18 @@ void setSignMessageDisplayData(void)
 {
     arrayHexstr(displayData.signMessageDisplayData.message, &appContext.messageSigningContext.hash, sizeof(appContext.messageSigningContext.hash));
 
-    os_memmove(displayData.signMessageDisplayData.signingTypeText, signing_type_texts[appContext.messageSigningContext.signingType],
-               sizeof(displayData.signMessageDisplayData.signingTypeText));
+    os_memmove(displayData.signMessageDisplayData.signingTypeText, signingTypeTexts[appContext.messageSigningContext.signingType],
+               (uint32_t)strlen(signingTypeTexts[appContext.messageSigningContext.signingType]));
     if (getProcessedAmountLength() != 0)
     {
-        os_memmove(displayData.signMessageDisplayData.amount, appContext.messageSigningContext.amount, getProcessedAmountLength());
+        uint32_t processedAmountLength = getProcessedAmountLength();
+        os_memmove(displayData.signMessageDisplayData.amount, appContext.messageSigningContext.amount, processedAmountLength);
+        os_memmove(&displayData.signMessageDisplayData.amount[processedAmountLength], cotiText, COTI_STRING_LENGTH);
     }
     if (getProcessedAddressLength() != 0)
     {
-        os_memmove(displayData.signMessageDisplayData.address, appContext.messageSigningContext.address, getProcessedAddressLength());
+        uint32_t processedAddressLength = getProcessedAddressLength();
+        os_memmove(displayData.signMessageDisplayData.address, appContext.messageSigningContext.address, processedAddressLength);
         displayData.signMessageDisplayData.address[ADDRESS_LENGTH] = 0;
     }
 }
