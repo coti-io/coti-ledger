@@ -8,8 +8,8 @@ void setPublicKey(uint8_t *privateKeyData, uint32_t privateKeyDataLength, const 
     cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, privateKeyDataLength, privateKey);
     io_seproxyhal_io_heartbeat();
     cx_ecfp_generate_pair(CX_CURVE_256K1, &appContext.publicKeyContext.publicKey, privateKey, 1);
-    os_memset(privateKey, 0, sizeof(*privateKey));
-    os_memset(privateKeyData, 0, privateKeyDataLength);
+    memset(privateKey, 0, sizeof(*privateKey));
+    memset(privateKeyData, 0, privateKeyDataLength);
 }
 
 uint16_t setPublicKeyToApduBuffer(void)
@@ -17,7 +17,7 @@ uint16_t setPublicKeyToApduBuffer(void)
     uint16_t txLength = 0;
     uint8_t publicKeyLength = sizeof(appContext.publicKeyContext.publicKey.W);
     G_io_apdu_buffer[txLength++] = publicKeyLength;
-    os_memmove(G_io_apdu_buffer + txLength, appContext.publicKeyContext.publicKey.W, publicKeyLength);
+    memmove(G_io_apdu_buffer + txLength, appContext.publicKeyContext.publicKey.W, publicKeyLength);
     txLength += publicKeyLength;
 
     return txLength;

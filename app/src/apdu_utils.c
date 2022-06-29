@@ -4,14 +4,14 @@
 
 void resetAppDisplayData(void)
 {
-    os_memset((uint8_t *)&displayData, 0, sizeof(displayData));
+    memset((uint8_t *)&displayData, 0, sizeof(displayData));
 }
 
 void resetAppContext(void)
 {
     PRINTF("!!RESET_APP_CONTEXT\n");
     appState = APP_STATE_IDLE;
-    os_memset((uint8_t *)&appContext, 0, sizeof(appContext));
+    memset((uint8_t *)&appContext, 0, sizeof(appContext));
     resetAppDisplayData();
 }
 
@@ -24,7 +24,7 @@ void setStatusWordToApduBuffer(uint16_t statusWord, uint16_t *txLength)
 void setSignatureToApduBuffer(const uint8_t *signature)
 {
     const uint32_t signatureLength = 64;
-    os_memset(G_io_apdu_buffer + 1, 0, signatureLength);
+    memset(G_io_apdu_buffer + 1, 0, signatureLength);
     uint8_t offset = 1;
     // point to r value
     uint8_t xOffset = 4;
@@ -36,7 +36,7 @@ void setSignatureToApduBuffer(const uint8_t *signature)
         xLength = halfSignatureLength;
         ++xOffset;
     }
-    os_memmove(G_io_apdu_buffer + offset + halfSignatureLength - xLength, signature + xOffset, xLength);
+    memmove(G_io_apdu_buffer + offset + halfSignatureLength - xLength, signature + xOffset, xLength);
     offset += halfSignatureLength;
     // move over rvalue and TagLEn
     xOffset += xLength + 2;
@@ -47,5 +47,5 @@ void setSignatureToApduBuffer(const uint8_t *signature)
         xLength = halfSignatureLength;
         ++xOffset;
     }
-    os_memmove(G_io_apdu_buffer + offset + halfSignatureLength - xLength, signature + xOffset, xLength);
+    memmove(G_io_apdu_buffer + offset + halfSignatureLength - xLength, signature + xOffset, xLength);
 }

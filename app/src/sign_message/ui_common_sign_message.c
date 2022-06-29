@@ -16,12 +16,12 @@ uint32_t io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
                                privateKeyData, NULL);
     io_seproxyhal_io_heartbeat();
     cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, sizeof(privateKeyData), &privateKey);
-    os_memset(privateKeyData, 0, sizeof(privateKeyData));
+    memset(privateKeyData, 0, sizeof(privateKeyData));
     uint32_t info = 0;
     io_seproxyhal_io_heartbeat();
     cx_ecdsa_sign(&privateKey, CX_RND_RFC6979 | CX_LAST, CX_SHA256, appContext.messageSigningContext.hash,
                   sizeof(appContext.messageSigningContext.hash), signature, sizeof(signature), &info);
-    os_memset(&privateKey, 0, sizeof(privateKey));
+    memset(&privateKey, 0, sizeof(privateKey));
     G_io_apdu_buffer[0] = 27;
     if ((info & CX_ECCINFO_PARITY_ODD) != 0)
     {

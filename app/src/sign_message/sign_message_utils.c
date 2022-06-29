@@ -104,7 +104,7 @@ void setMessageHash(uint8_t p2, const uint8_t *workBufferPtr)
     }
     else
     {
-        os_memmove(appContext.messageSigningContext.hash, workBufferPtr, sizeof(appContext.messageSigningContext.hash));
+        memmove(appContext.messageSigningContext.hash, workBufferPtr, sizeof(appContext.messageSigningContext.hash));
     }
 }
 
@@ -149,7 +149,7 @@ void setAmount(const uint8_t **workBufferPtr, uint16_t *unreadDataLength)
         if (remainingAmountLength != 0)
         {
             uint32_t amountLengthToProcess = *unreadDataLength > remainingAmountLength ? remainingAmountLength : *unreadDataLength;
-            os_memmove(&appContext.messageSigningContext.amount[processedAmountLength], *workBufferPtr, amountLengthToProcess);
+            memmove(&appContext.messageSigningContext.amount[processedAmountLength], *workBufferPtr, amountLengthToProcess);
             *workBufferPtr += amountLengthToProcess;
             *unreadDataLength -= amountLengthToProcess;
         }
@@ -175,7 +175,7 @@ void setAddress(const uint8_t *workBufferPtr, uint16_t unreadDataLength)
         if (remainingAddressLength != 0)
         {
             uint32_t addressLengthToProcess = unreadDataLength > remainingAddressLength ? remainingAddressLength : unreadDataLength;
-            os_memmove(&appContext.messageSigningContext.address[processedAddressLength], workBufferPtr, addressLengthToProcess);
+            memmove(&appContext.messageSigningContext.address[processedAddressLength], workBufferPtr, addressLengthToProcess);
         }
     }
 }
@@ -184,18 +184,18 @@ void setSignMessageDisplayData(void)
 {
     arrayHexstr(displayData.signMessageDisplayData.message, &appContext.messageSigningContext.hash, sizeof(appContext.messageSigningContext.hash));
 
-    os_memmove(displayData.signMessageDisplayData.signingTypeText, signingTypeTexts[appContext.messageSigningContext.signingType],
-               (uint32_t)strlen(signingTypeTexts[appContext.messageSigningContext.signingType]));
+    memmove(displayData.signMessageDisplayData.signingTypeText, signingTypeTexts[appContext.messageSigningContext.signingType],
+            (uint32_t)strlen(signingTypeTexts[appContext.messageSigningContext.signingType]));
     if (getProcessedAmountLength() != 0)
     {
         uint32_t processedAmountLength = getProcessedAmountLength();
-        os_memmove(displayData.signMessageDisplayData.amount, appContext.messageSigningContext.amount, processedAmountLength);
-        os_memmove(&displayData.signMessageDisplayData.amount[processedAmountLength], cotiText, COTI_STRING_LENGTH);
+        memmove(displayData.signMessageDisplayData.amount, appContext.messageSigningContext.amount, processedAmountLength);
+        memmove(&displayData.signMessageDisplayData.amount[processedAmountLength], cotiText, COTI_STRING_LENGTH);
     }
     if (getProcessedAddressLength() != 0)
     {
         uint32_t processedAddressLength = getProcessedAddressLength();
-        os_memmove(displayData.signMessageDisplayData.address, appContext.messageSigningContext.address, processedAddressLength);
+        memmove(displayData.signMessageDisplayData.address, appContext.messageSigningContext.address, processedAddressLength);
         displayData.signMessageDisplayData.address[ADDRESS_LENGTH] = 0;
     }
 }
