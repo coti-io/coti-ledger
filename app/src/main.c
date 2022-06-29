@@ -51,9 +51,10 @@ unsigned int ux_step_count;
 #endif // HAVE_UX_FLOW
 
 #if defined(TARGET_NANOS)
-unsigned int ui_address_nanos_button(unsigned int button_mask, unsigned int button_mask_counter)
+uint32_t ui_address_nanos_button(uint32_t buttonMask, uint32_t buttonMaskCounter)
 {
-    switch (button_mask)
+    UNUSED(buttonMaskCounter);
+    switch (buttonMask)
     {
     case BUTTON_EVT_RELEASED | BUTTON_LEFT: // CANCEL
         io_seproxyhal_touch_address_cancel(NULL);
@@ -71,9 +72,10 @@ unsigned int ui_address_nanos_button(unsigned int button_mask, unsigned int butt
 #endif // #if defined(TARGET_NANOS)
 
 #if defined(TARGET_NANOS)
-unsigned int ui_approval_nanos_button(unsigned int button_mask, unsigned int button_mask_counter)
+uint32_t ui_approval_nanos_button(uint32_t buttonMask, uint32_t buttonMaskCounter)
 {
-    switch (button_mask)
+    UNUSED(buttonMaskCounter);
+    switch (buttonMask)
     {
     case BUTTON_EVT_RELEASED | BUTTON_LEFT:
         io_seproxyhal_touch_tx_cancel(NULL);
@@ -88,9 +90,10 @@ unsigned int ui_approval_nanos_button(unsigned int button_mask, unsigned int but
     return 0;
 }
 
-unsigned int ui_approval_sign_message_nanos_button(unsigned int button_mask, unsigned int button_mask_counter)
+uint32_t ui_approval_sign_message_nanos_button(uint32_t buttonMask, uint32_t buttonMaskCounter)
 {
-    switch (button_mask)
+    UNUSED(buttonMaskCounter);
+    switch (buttonMask)
     {
     case BUTTON_EVT_RELEASED | BUTTON_LEFT:
         io_seproxyhal_touch_sign_message_cancel(NULL);
@@ -105,9 +108,10 @@ unsigned int ui_approval_sign_message_nanos_button(unsigned int button_mask, uns
     return 0;
 }
 
-unsigned int ui_data_selector_nanos_button(unsigned int button_mask, unsigned int button_mask_counter)
+uint32_t ui_data_selector_nanos_button(uint32_t buttonMask, uint32_t buttonMaskCounter)
 {
-    switch (button_mask)
+    UNUSED(buttonMaskCounter);
+    switch (buttonMask)
     {
     case BUTTON_EVT_RELEASED | BUTTON_LEFT:
         io_seproxyhal_touch_data_cancel(NULL);
@@ -122,9 +126,10 @@ unsigned int ui_data_selector_nanos_button(unsigned int button_mask, unsigned in
     return 0;
 }
 
-unsigned int ui_data_parameter_nanos_button(unsigned int button_mask, unsigned int button_mask_counter)
+uint32_t ui_data_parameter_nanos_button(uint32_t buttonMask, uint32_t buttonMaskCounter)
 {
-    switch (button_mask)
+    UNUSED(buttonMaskCounter);
+    switch (buttonMask)
     {
     case BUTTON_EVT_RELEASED | BUTTON_LEFT:
         io_seproxyhal_touch_data_cancel(NULL);
@@ -141,7 +146,7 @@ unsigned int ui_data_parameter_nanos_button(unsigned int button_mask, unsigned i
 
 #endif // #if defined(TARGET_NANOS)
 
-unsigned short io_exchange_al(unsigned char channel, unsigned short txLength)
+uint16_t io_exchange_al(unsigned char channel, uint16_t txLength)
 {
     switch (channel & (uint8_t)~IO_FLAGS)
     {
@@ -323,6 +328,7 @@ void io_seproxyhal_display(const bagl_element_t *element)
 
 unsigned char io_event(unsigned char channel)
 {
+    UNUSED(channel);
     // Can't have more than one tag in the reply, not supported yet.
     switch (G_io_seproxyhal_spi_buffer[0])
     {
@@ -382,6 +388,8 @@ void exitCriticalSection(void)
 
 __attribute__((section(".boot"))) int main(int argc, char *argv[])
 {
+    UNUSED(argc);
+    UNUSED(argv);
     exitCriticalSection();
 
     resetAppContext();

@@ -46,6 +46,7 @@ uint32_t io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
 
 uint32_t io_seproxyhal_touch_sign_message_cancel(const bagl_element_t *e)
 {
+    UNUSED(e);
     resetAppContext();
     uint16_t sw = SW_REJECTED_BY_USER;
     uint16_t txLength = 0;

@@ -7,6 +7,7 @@
 
 uint32_t io_seproxyhal_touch_address_ok(const bagl_element_t *e)
 {
+    UNUSED(e);
     uint16_t txLength = setPublicKeyToApduBuffer();
     const uint16_t sw = SW_OK;
     setStatusWordToApduBuffer(sw, &txLength);
@@ -21,6 +22,7 @@ uint32_t io_seproxyhal_touch_address_ok(const bagl_element_t *e)
 
 uint32_t io_seproxyhal_touch_address_cancel(const bagl_element_t *e)
 {
+    UNUSED(e);
     const uint16_t sw = SW_REJECTED_BY_USER;
     uint16_t txLength = 0;
     setStatusWordToApduBuffer(sw, &txLength);
