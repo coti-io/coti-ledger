@@ -6,7 +6,7 @@ This is the Ledger Nano S COTI app.
 
 ## Building and Installing
 
-Make sure that Docker is installed and build the `ledger-app-builder:2.0.0-1` container image:
+Make sure that Docker is installed and build the `ledger-app-builder:2.1.0` container image:
 
 ```bash
 $ docker build -t ledger-app-builder:2.1.0 .
