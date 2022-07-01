@@ -7,6 +7,34 @@ on:
       - master
 
 jobs:
+  nano_build:
+    name: Build Coti Ledger application for NanoS, X and S+
+    strategy:
+      matrix:
+        include:
+          - SDK: "$NANOS_SDK"
+            artifact: coti-ledger-app-nanoS
+          - SDK: "$NANOX_SDK"
+            artifact: coti-ledger-app-nanoX
+          - SDK: "$NANOSP_SDK"
+            artifact: coti-ledger-app-nanoSP
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          cd app
+          make BOLOS_SDK=${{ matrix.SDK }}
+      - name: Upload app binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.artifact }}
+          path: bin
+
   job_scan_build:
     name: Clang Static Analyzer
     runs-on: ubuntu-latest
