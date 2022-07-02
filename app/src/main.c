@@ -238,7 +238,7 @@ void handleApdu(uint8_t *flags, uint16_t *txLength)
         {
         }
     }
-    END_TRY
+    END_TRY;
 }
 
 void cotiMain(void)
@@ -317,7 +317,7 @@ void cotiMain(void)
             {
             }
         }
-        END_TRY
+        END_TRY;
     }
 }
 
@@ -378,7 +378,7 @@ void appExit(void)
         {
         }
     }
-    END_TRY_L(exit)
+    END_TRY_L(exit);
 }
 
 void exitCriticalSection(void)
@@ -437,7 +437,7 @@ __attribute__((section(".boot"))) int main(int argc, char *argv[])
             {
             }
         }
-        END_TRY
+        END_TRY;
     }
 
     appExit();
