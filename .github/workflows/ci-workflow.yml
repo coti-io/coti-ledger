@@ -13,10 +13,16 @@ jobs:
       matrix:
         include:
           - SDK: "$NANOS_SDK"
+            SDK_VERSION: "$NANOS_SDK_VERSION"
+            SDK_NAME: NANOS
             artifact: coti-ledger-app-nanoS
           - SDK: "$NANOX_SDK"
+            SDK_VERSION: "$NANOX_SDK_VERSION"
+            SDK_NAME: NANOX
             artifact: coti-ledger-app-nanoX
           - SDK: "$NANOSP_SDK"
+            SDK_VERSION: "$NANOSP_SDK_VERSION"
+            SDK_NAME: NANOS+
             artifact: coti-ledger-app-nanoSP
     runs-on: ubuntu-latest
     container:
@@ -25,7 +31,7 @@ jobs:
     steps:
       - name: Clone
         uses: actions/checkout@v2
-      - name: Build
+      - name: Build ${{ matrix.SDK_NAME }} app with version ${{ matrix.SDK_VERSION}}
         run: |
           cd app
           make BOLOS_SDK=${{ matrix.SDK }}
