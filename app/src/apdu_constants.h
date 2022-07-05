@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared_context.h"
+#include <stdint.h>
 
 #define CLA 0xE0
 #define INS_GET_PUBLIC_KEY 0x02
@@ -33,6 +33,3 @@
 #define SW_UNKNOWN_INSTRUCTION 0x6D00
 #define SW_UNKNOWN_CLASS 0x6E00
 #define SW_OK 0x9000
-
-void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t data_length, unsigned int *flags, unsigned int *tx);
-void handle_sign_message(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t data_length, unsigned int *flags, unsigned int *tx);

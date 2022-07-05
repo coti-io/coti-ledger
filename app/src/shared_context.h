@@ -9,32 +9,33 @@
 #include <os_io_seproxyhal.h>
 
 #include "utils.h"
+#include "shared_constants.h"
 
-#define MAX_BIP32_PATH 10
-#define MAX_SIGNING_TEXT 15
-#define HASH_LENGTH 32
-
-typedef struct public_key_context_t
+typedef struct PublicKeyContext
 {
-    cx_ecfp_public_key_t public_key;
-} public_key_context_t;
+    cx_ecfp_public_key_t publicKey;
+} PublicKeyContext_t;
 
-typedef struct message_signing_context_t
+typedef struct MessageSigningContext
 {
-    uint8_t path_length;
-    uint32_t bip32_path[MAX_BIP32_PATH];
-    char signing_type_text[MAX_SIGNING_TEXT];
+    uint8_t pathLength;
+    uint32_t bip32Path[MAX_BIP32_PATH];
+    uint8_t signingType;
     uint8_t hash[HASH_LENGTH];
-    uint32_t remaining_length;
-} message_signing_context_t;
+    uint32_t signMessageLength;
+    uint32_t processedMessageLength;
+    uint8_t amount[MAX_AMOUNT_LENGTH];
+    uint32_t amountLength;
+    uint8_t address[ADDRESS_LENGTH];
+} MessageSigningContext_t;
 
-typedef union tmp_ctx_t
+typedef union AppContext
 {
-    public_key_context_t public_key_context;
-    message_signing_context_t message_signing_context;
-} tmp_ctx_t;
+    PublicKeyContext_t publicKeyContext;
+    MessageSigningContext_t messageSigningContext;
+} AppContext_t;
 
-typedef enum signing_type_t
+typedef enum SigningType
 {
     MESSAGE,
     FULL_NODE_FEE,
@@ -42,35 +43,36 @@ typedef enum signing_type_t
     BASE_TX,
     TX,
     MAX_SIGNING_TYPE
-} signing_type_t;
+} SigningType_t;
 
-typedef enum app_state_t
+typedef enum AppState
 {
     APP_STATE_IDLE,
     APP_STATE_SIGNING_MESSAGE
-} app_state_t;
+} AppState_t;
 
-typedef struct str_data_t
+typedef struct PublicKeyDisplayData
 {
-    char public_key[65 * 2 + 3]; // "0x" + hex public key + '\0'
-} str_data_t;
+    // "0x" + hex public key + '\0'
+    char publicKey[65 * 2 + 3];
+} PublicKeyDisplayData_t;
 
-typedef struct str_data_tmp_t
+typedef struct SignMessageDisplayData
 {
-    char tmp[100];
-    char tmp2[40];
-} str_data_tmp_t;
+    char message[2 * HASH_LENGTH + 1];
+    char signingTypeText[MAX_SIGNING_TEXT + 1];
+    char amount[MAX_AMOUNT_LENGTH + COTI_STRING_LENGTH + 1];
+    char address[ADDRESS_LENGTH + 1];
+} SignMessageDisplayData_t;
 
-typedef union strings_t
+typedef union DisplayData
 {
-    str_data_t common;
-    str_data_tmp_t tmp;
-} strings_t;
+    PublicKeyDisplayData_t publicKeyDisplayData;
+    SignMessageDisplayData_t signMessageDisplayData;
+} DisplayData_t;
 
-extern tmp_ctx_t tmp_ctx;
-extern strings_t strings;
+extern AppContext_t appContext;
+extern DisplayData_t displayData;
 extern cx_sha3_t sha3;
 
-extern uint8_t app_state;
-
-void reset_app_context(void);
+extern uint8_t appState;

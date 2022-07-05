@@ -1,0 +1,65 @@
+name: Coti Ledger Compilation & tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  nano_build:
+    name: Build Coti Ledger application for NanoS, X and S+
+    strategy:
+      matrix:
+        include:
+          - SDK: "$NANOS_SDK"
+            SDK_VERSION: "$NANOS_SDK_VERSION"
+            SDK_NAME: NANOS
+            ARTIFACT: coti-ledger-app-nanoS
+          - SDK: "$NANOX_SDK"
+            SDK_VERSION: "$NANOX_SDK_VERSION"
+            SDK_NAME: NANOX
+            ARTIFACT: coti-ledger-app-nanoX
+          - SDK: "$NANOSP_SDK"
+            SDK_VERSION: "$NANOSP_SDK_VERSION"
+            SDK_NAME: NANOS+
+            ARTIFACT: coti-ledger-app-nanoSP
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/coti-io/coti-ledger-app-builder:latest
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+      - name: Build ${{ matrix.SDK_NAME }} app
+        run: |
+          cd app
+          make BOLOS_SDK=${{ matrix.SDK }}
+      - name: Generate app binary name
+        id: generate-name
+        run: echo "::set-output name=BINARY_NAME::${{ matrix.ARTIFACT }}-${{ matrix.SDK_VERSION }}"
+      - name: Upload app binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.generate-name.outputs.BINARY_NAME }}
+          path: app/bin
+
+  job_scan_build:
+    name: Clang Static Analyzer
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/coti-io/coti-ledger-app-builder:latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build with Clang Static Analyzer
+        run: |
+          cd app
+          make clean
+          scan-build --use-cc=clang -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist -o scan-build --status-bugs make default
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: scan-build
+          path: scan-build

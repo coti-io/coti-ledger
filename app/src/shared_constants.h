@@ -1,0 +1,19 @@
+#pragma once
+
+#include <stdint.h>
+
+#define MAX_BIP32_PATH 10
+#define MAX_SIGNING_TEXT 15
+#define HASH_LENGTH 32
+#define ADDRESS_LENGTH 136
+#define MAX_AMOUNT_LENGTH 25
+#define COTI_STRING_LENGTH 5
+
+extern const uint8_t cotiText[COTI_STRING_LENGTH];
+
+#define BYTE 1
+#define FOUR_BYTES 4
+#define PATH_LENGTH_BYTES BYTE
+#define PATH_PARAMETER_BYTES FOUR_BYTES
+#define SIGNATURE_TYPE_BYTES BYTE
+#define PARAMETER_LENGTH_BYTES FOUR_BYTES
