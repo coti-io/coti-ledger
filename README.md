@@ -6,6 +6,7 @@
 [![Docker Publish](https://github.com/coti-io/coti-ledger/actions/workflows/publish.yml/badge.svg)](https://github.com/coti-io/coti-ledger/actions/workflows/publish.yml)
 [![GitHub CI](https://github.com/coti-io/coti-ledger/actions/workflows/ci-workflow.yml/badge.svg)](https://github.com/coti-io/coti-ledger/actions/workflows/ci-workflow.yml)
 [![GitHub Lint](https://github.com/coti-io/coti-ledger/actions/workflows/lint-workflow.yml/badge.svg)](https://github.com/coti-io/coti-ledger/actions/workflows/lint-workflow.yml)
+[![Coverity](https://scan.coverity.com/projects/25249/badge.svg)](https://scan.coverity.com/projects/coti-io-coti-ledger)
 [![Discord Server](https://img.shields.io/discord/386571547508473876.svg)](https://discord.me/coti)
 ## Overview
 

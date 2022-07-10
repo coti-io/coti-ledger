@@ -14,7 +14,7 @@ jobs:
       PROJECT: coti-io%2Fcoti-ledger
       TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
       EMAIL: ${{ secrets.COVERITY_SCAN_EMAIL }}
-    
+
     steps:
       - name: Clone
         uses: actions/checkout@v2
