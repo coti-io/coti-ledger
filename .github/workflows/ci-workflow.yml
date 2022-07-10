@@ -31,20 +31,23 @@ jobs:
     steps:
       - name: Clone
         uses: actions/checkout@v2
+
       - name: Build ${{ matrix.SDK_NAME }} app
         run: |
           cd app
           make BOLOS_SDK=${{ matrix.SDK }}
+
       - name: Generate app binary name
         id: generate-name
         run: echo "::set-output name=BINARY_NAME::${{ matrix.ARTIFACT }}-${{ matrix.SDK_VERSION }}"
+
       - name: Upload app binary
         uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.generate-name.outputs.BINARY_NAME }}
           path: app/bin
 
-  job_scan_build:
+  scan_build:
     name: Clang Static Analyzer
     runs-on: ubuntu-latest
 
@@ -52,14 +55,61 @@ jobs:
       image: ghcr.io/coti-io/coti-ledger-app-builder:latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Clone
+        uses: actions/checkout@v2
+
       - name: Build with Clang Static Analyzer
         run: |
           cd app
           make clean
           scan-build --use-cc=clang -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist -o scan-build --status-bugs make default
-      - uses: actions/upload-artifact@v2
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: scan-build
           path: scan-build
+
+  coverity_scan:
+    name: Coverity Scan
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/coti-io/coti-ledger-app-builder:latest
+
+    env:
+      PROJECT: coti-io%2Fcoti-ledger
+      TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+      EMAIL: ${{ secrets.COVERITY_SCAN_EMAIL }}
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+
+      - name: Download Coverity Build Tool
+        run: |
+          apt install sudo -y
+          sudo apt-get install wget -y
+          wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=$PROJECT" -O cov-analysis-linux64.tar.gz
+          mkdir cov-analysis-linux64
+          tar xzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
+
+      - name: Build with cov-build
+        run: |
+          export PATH=`pwd`/cov-analysis-linux64/bin:$PATH
+          cd app
+          make clean
+          cov-build --dir cov-int make default
+
+      - name: Submit the result to Coverity Scan
+        run: |
+          cd app
+          tar czvf cov-int.tar.gz cov-int
+          curl \
+            --form token=$TOKEN \
+            --form email=$EMAIL \
+            --form file=@cov-int.tar.gz \
+            --form version=master \
+            --form description="Coti Ledger App" \
+            https://scan.coverity.com/builds?project=$PROJECT
