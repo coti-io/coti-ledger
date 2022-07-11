@@ -1,4 +1,4 @@
-name: Coti Ledger Coverity Scan
+name: coverity scan
 
 on: [ workflow_dispatch ]
 

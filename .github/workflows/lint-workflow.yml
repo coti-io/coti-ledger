@@ -1,4 +1,4 @@
-name: Code style check
+name: code style check
 
 on:
   workflow_dispatch:

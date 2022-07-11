@@ -1,4 +1,4 @@
-name: Coti Ledger Compilation & tests
+name: compilation & tests
 
 on:
   workflow_dispatch:
