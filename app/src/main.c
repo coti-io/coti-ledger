@@ -414,7 +414,7 @@ __attribute__((section(".boot"))) int main(int argc, char *argv[])
                 USB_power(0);
                 USB_power(1);
 
-                uiIdle();
+                uiMenuMain();
 
 #ifdef HAVE_BLE
                 BLE_power(0, NULL);

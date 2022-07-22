@@ -8,6 +8,7 @@
 [![GitHub Coverity Scan](https://github.com/coti-io/coti-ledger/actions/workflows/coverity-scan-workflow.yml/badge.svg)](https://github.com/coti-io/coti-ledger/actions/workflows/coverity-scan-workflow.yml)
 [![Coverity](https://scan.coverity.com/projects/25249/badge.svg)](https://scan.coverity.com/projects/coti-io-coti-ledger)
 [![Discord Server](https://img.shields.io/discord/386571547508473876.svg)](https://discord.me/coti)
+
 ## Overview
 
 This is the Ledger Nano S/S+/X COTI app.
