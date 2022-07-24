@@ -2,8 +2,6 @@
 #include "ui_callbacks.h"
 #include "ui_flow.h"
 
-#ifdef HAVE_UX_FLOW
-
 UX_STEP_NOCB(uxMenuInfoStep, bn, {"Coti Ledger App", "(c) 2022 Coti"});
 UX_STEP_CB(uxMenuBackStep, pb, uiMenuMain(), {&C_icon_back, "Back"});
 
@@ -33,16 +31,12 @@ UX_STEP_VALID(uxMenuExitStep, pb, os_sched_exit(-1),
               });
 UX_FLOW(uxMenuMainFlow, &uxMenuReadyStep, &uxMenuVersionStep, &uxMenuAboutStep, &uxMenuExitStep, FLOW_LOOP);
 
-#endif
-
 void uiMenuMain(void)
 {
-#if defined(HAVE_UX_FLOW)
     // reserve a display stack slot if none yet
     if (0 == G_ux.stack_count)
     {
         ux_stack_push();
     }
     ux_flow_init(0, uxMenuMainFlow, NULL);
-#endif // #if defined(HAVE_UX_FLOW)
 }
