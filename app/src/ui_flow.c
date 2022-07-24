@@ -5,7 +5,7 @@
 #ifdef HAVE_UX_FLOW
 
 UX_STEP_NOCB(uxMenuInfoStep, bn, {"Coti Ledger App", "(c) 2022 Coti"});
-UX_STEP_CB(uxMenuBackStep, pb, uiMenuAbout(), {&C_icon_back, "Back"});
+UX_STEP_CB(uxMenuBackStep, pb, uiMenuMain(), {&C_icon_back, "Back"});
 
 UX_FLOW(uxMenuAboutFlow, &uxMenuInfoStep, &uxMenuBackStep, FLOW_LOOP);
 
