@@ -1,7 +1,7 @@
 #*******************************************************************************
 #   Ledger App
 #   (c) 2017 Ledger
-#   (c) 2020 Tchain Ltd. adaptation for COTI
+#   (c) 2022 Tchain Ltd. adaptation for COTI
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ DEFINES += $(DEFINES_LIB)
 
 
 ifeq ($(TARGET_NAME),TARGET_NANOS)
-	ICONNAME=icons/nanos_app_coti.ico
+	ICONNAME=icons/nanos_app_coti.gif
 else
-	ICONNAME=icons/nanox_app_coti.ico
+	ICONNAME=icons/nanox_app_coti.gif
 endif
 
 
@@ -48,10 +48,13 @@ all: default
 # Platform #
 ############
 
+DEFINES += APPNAME=\"$(APPNAME)\"
+DEFINES += APPVERSION=\"$(APPVERSION)\"
+DEFINES += MAJOR_VERSION=$(APPVERSION_M) MINOR_VERSION=$(APPVERSION_N) PATCH_VERSION=$(APPVERSION_P)
+
 DEFINES += OS_IO_SEPROXYHAL
 DEFINES += HAVE_BAGL HAVE_SPRINTF
 DEFINES += HAVE_IO_USB HAVE_L4_USBLIB IO_USB_MAX_ENDPOINTS=6 IO_HID_EP_LENGTH=64 HAVE_USB_APDU
-DEFINES += LEDGER_MAJOR_VERSION=$(APPVERSION_M) LEDGER_MINOR_VERSION=$(APPVERSION_N) LEDGER_PATCH_VERSION=$(APPVERSION_P)
 
 # U2F
 DEFINES += HAVE_U2F HAVE_IO_U2F
@@ -59,11 +62,8 @@ DEFINES += U2F_PROXY_MAGIC=\"COTI\"
 DEFINES += USB_SEGMENT_SIZE=64
 DEFINES += BLE_SEGMENT_SIZE=32 #max MTU, min 20
 
-
 DEFINES += HAVE_WEBUSB WEBUSB_URL_SIZE_B=0 WEBUSB_URL=""
-
 DEFINES += UNUSED\(x\)=\(void\)x
-DEFINES += APPVERSION=\"$(APPVERSION)\"
 
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
@@ -88,7 +88,10 @@ endif
 DEFINES += HAVE_UX_FLOW
 
 # Enabling debug PRINTF
-DEBUG = 0
+ifndef DEBUG
+  DEBUG = 0
+endif
+
 ifneq ($(DEBUG),0)
 ifeq ($(TARGET_NAME),TARGET_NANOS)
 DEFINES += HAVE_PRINTF PRINTF=screen_printf

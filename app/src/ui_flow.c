@@ -14,7 +14,7 @@ void uiMenuAbout(void)
 
 UX_STEP_NOCB(uxMenuReadyStep, nn,
              {
-                 "Application",
+                 "Coti Application",
                  "is ready",
              });
 UX_STEP_NOCB(uxMenuVersionStep, bn,
