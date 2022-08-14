@@ -22,20 +22,11 @@ endif
 
 include $(BOLOS_SDK)/Makefile.defines
 
-APP_LOAD_PARAMS = --curve secp256k1
+APP_LOAD_PARAMS = --curve secp256k1 --path "44'/6779'" --appFlags 0x40 $(COMMON_LOAD_PARAMS)
 
 # Ledger: add the "Pending security review" disclaimer
 APP_LOAD_PARAMS += --tlvraw 9F:01
 DEFINES += HAVE_PENDING_REVIEW_SCREEN
-
-ifeq ($(TARGET_NAME), TARGET_NANOX)
-	APP_LOAD_PARAMS += --appFlags 0x200  # APPLICATION_FLAG_BOLOS_SETTINGS
-else
-	APP_LOAD_PARAMS += --appFlags 0x000
-endif
-
-APP_LOAD_PARAMS += --path "44'/6779'"
-APP_LOAD_PARAMS += $(COMMON_LOAD_PARAMS)
 
 APPVERSION_M = 1
 APPVERSION_N = 0
