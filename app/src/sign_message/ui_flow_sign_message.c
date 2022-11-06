@@ -24,7 +24,7 @@ UX_STEP_NOCB(uxSignAddressDataStep, paging,
              });
 UX_STEP_NOCB(uxSignDestinationAddressDataStep, paging,
              {
-                 .title = "Destination Address",
+                 .title = "To Address",
                  .text = displayData.signMessageDisplayData.address,
              });
 UX_STEP_CB(uxSignMessageOkStep, pbb, io_seproxyhal_touch_sign_message_ok(NULL),
