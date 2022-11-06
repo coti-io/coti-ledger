@@ -17,9 +17,14 @@ UX_STEP_NOCB(uxSignAmountDataStep, paging,
                  .title = "Amount",
                  .text = displayData.signMessageDisplayData.amount,
              });
-UX_STEP_NOCB(uxSignAddressData, paging,
+UX_STEP_NOCB(uxSignAddressDataStep, paging,
              {
                  .title = "From Address",
+                 .text = displayData.signMessageDisplayData.address,
+             });
+UX_STEP_NOCB(uxSignDestinationAddressDataStep, paging,
+             {
+                 .title = "Destination Address",
                  .text = displayData.signMessageDisplayData.address,
              });
 UX_STEP_CB(uxSignMessageOkStep, pbb, io_seproxyhal_touch_sign_message_ok(NULL),
@@ -40,9 +45,9 @@ const ux_flow_step_t *const uxSignFlow[5] = {
 };
 
 const ux_flow_step_t *const uxBaseTxFlow[6] = {
-    &uxSignInitialStep, &uxSignAmountDataStep, &uxSignAddressData, &uxSignMessageOkStep, &uxSignMessageCancelStep, FLOW_END_STEP,
+    &uxSignInitialStep, &uxSignAmountDataStep, &uxSignAddressDataStep, &uxSignMessageOkStep, &uxSignMessageCancelStep, FLOW_END_STEP,
 };
 
-const ux_flow_step_t *const uxTxFlow[5] = {
-    &uxSignInitialStep, &uxSignAmountDataStep, &uxSignMessageOkStep, &uxSignMessageCancelStep, FLOW_END_STEP,
+const ux_flow_step_t *const uxTxFlow[6] = {
+    &uxSignInitialStep, &uxSignAmountDataStep, &uxSignDestinationAddressDataStep, &uxSignMessageOkStep, &uxSignMessageCancelStep, FLOW_END_STEP,
 };
