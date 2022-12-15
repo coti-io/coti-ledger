@@ -1,7 +1,7 @@
 /*******************************************************************************
  *   Ledger App Coti
  *   (c) 2017 Ledger
- *   (c) 2020 Tchain Ltd. adaptation for COTI
+ *   (c) 2022 Tchain Ltd. adaptation for COTI
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 #include "apdu_constants.h"
 #include "apdu_handlers.h"
 #include "apdu_utils.h"
-#include "ui_callbacks.h"
 
 #ifdef HAVE_UX_FLOW
 #include "ui_flow.h"
@@ -30,7 +29,7 @@
 #include "glyphs.h"
 #include "utils.h"
 
-unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
+uint8_t G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
 AppContext_t appContext;
 DisplayData_t displayData;
@@ -49,134 +48,6 @@ ux_state_t ux;
 unsigned int ux_step;
 unsigned int ux_step_count;
 #endif // HAVE_UX_FLOW
-
-#if defined(TARGET_NANOS)
-uint32_t ui_address_nanos_button(uint32_t buttonMask, uint32_t buttonMaskCounter)
-{
-    UNUSED(buttonMaskCounter);
-    switch (buttonMask)
-    {
-    case BUTTON_EVT_RELEASED | BUTTON_LEFT: // CANCEL
-        io_seproxyhal_touch_address_cancel(NULL);
-        break;
-
-    case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
-        // OK
-        io_seproxyhal_touch_address_ok(NULL);
-        break;
-    default:
-        break;
-    }
-    return 0;
-}
-#endif // #if defined(TARGET_NANOS)
-
-#if defined(TARGET_NANOS)
-uint32_t ui_approval_nanos_button(uint32_t buttonMask, uint32_t buttonMaskCounter)
-{
-    UNUSED(buttonMaskCounter);
-    switch (buttonMask)
-    {
-    case BUTTON_EVT_RELEASED | BUTTON_LEFT:
-        io_seproxyhal_touch_tx_cancel(NULL);
-        break;
-
-    case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
-        io_seproxyhal_touch_tx_ok(NULL);
-        break;
-    default:
-        break;
-    }
-    return 0;
-}
-
-uint32_t ui_approval_sign_message_nanos_button(uint32_t buttonMask, uint32_t buttonMaskCounter)
-{
-    UNUSED(buttonMaskCounter);
-    switch (buttonMask)
-    {
-    case BUTTON_EVT_RELEASED | BUTTON_LEFT:
-        io_seproxyhal_touch_sign_message_cancel(NULL);
-        break;
-
-    case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
-        io_seproxyhal_touch_sign_message_ok(NULL);
-        break;
-    default:
-        break;
-    }
-    return 0;
-}
-
-uint32_t ui_data_selector_nanos_button(uint32_t buttonMask, uint32_t buttonMaskCounter)
-{
-    UNUSED(buttonMaskCounter);
-    switch (buttonMask)
-    {
-    case BUTTON_EVT_RELEASED | BUTTON_LEFT:
-        io_seproxyhal_touch_data_cancel(NULL);
-        break;
-
-    case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
-        io_seproxyhal_touch_data_ok(NULL);
-        break;
-    default:
-        break;
-    }
-    return 0;
-}
-
-uint32_t ui_data_parameter_nanos_button(uint32_t buttonMask, uint32_t buttonMaskCounter)
-{
-    UNUSED(buttonMaskCounter);
-    switch (buttonMask)
-    {
-    case BUTTON_EVT_RELEASED | BUTTON_LEFT:
-        io_seproxyhal_touch_data_cancel(NULL);
-        break;
-
-    case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
-        io_seproxyhal_touch_data_ok(NULL);
-        break;
-    default:
-        break;
-    }
-    return 0;
-}
-
-#endif // #if defined(TARGET_NANOS)
-
-uint16_t io_exchange_al(unsigned char channel, uint16_t txLength)
-{
-    switch (channel & (uint8_t)~IO_FLAGS)
-    {
-    case CHANNEL_KEYBOARD:
-        break;
-
-        // multiplexed io exchange over an SPI channel and TLV encapsulated protocol
-    case CHANNEL_SPI:
-        if (txLength != 0)
-        {
-            io_seproxyhal_spi_send(G_io_apdu_buffer, txLength);
-
-            if ((channel & IO_RESET_AFTER_REPLIED) != 0)
-            {
-                reset();
-            }
-            // nothing received from the master so far (it's a tx transaction)
-            return 0;
-        }
-        else
-        {
-            return io_seproxyhal_spi_recv(G_io_apdu_buffer, sizeof(G_io_apdu_buffer), 0);
-        }
-
-    default:
-        THROW(INVALID_PARAMETER);
-    }
-
-    return 0;
-}
 
 void handleApdu(uint8_t *flags, uint16_t *txLength)
 {
@@ -321,50 +192,6 @@ void cotiMain(void)
     }
 }
 
-void io_seproxyhal_display(const bagl_element_t *element)
-{
-    io_seproxyhal_display_default(element);
-}
-
-unsigned char io_event(unsigned char channel)
-{
-    UNUSED(channel);
-    // Can't have more than one tag in the reply, not supported yet.
-    switch (G_io_seproxyhal_spi_buffer[0])
-    {
-    case SEPROXYHAL_TAG_FINGER_EVENT:
-        UX_FINGER_EVENT(G_io_seproxyhal_spi_buffer);
-        break;
-
-    case SEPROXYHAL_TAG_BUTTON_PUSH_EVENT:
-        UX_BUTTON_PUSH_EVENT(G_io_seproxyhal_spi_buffer)
-        break;
-
-    case SEPROXYHAL_TAG_STATUS_EVENT:
-        if (G_io_apdu_media == IO_APDU_MEDIA_USB_HID && !(U4BE(G_io_seproxyhal_spi_buffer, 3) & SEPROXYHAL_TAG_STATUS_EVENT_FLAG_USB_POWERED))
-        {
-            THROW(EXCEPTION_IO_RESET);
-        }
-        // no break is intentional
-    case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
-        UX_DISPLAYED_EVENT({})
-        break;
-
-    default:
-        UX_DEFAULT_EVENT()
-        break;
-    }
-
-    // close the event if not done previously (by a display or whatever)
-    if (io_seproxyhal_spi_is_status_sent() != 0)
-    {
-        io_seproxyhal_general_status();
-    }
-
-    // command has been processed, DO NOT reset the current APDU transport
-    return 1;
-}
-
 void appExit(void)
 {
 
@@ -414,7 +241,7 @@ __attribute__((section(".boot"))) int main(int argc, char *argv[])
                 USB_power(0);
                 USB_power(1);
 
-                uiIdle();
+                uiMenuMain();
 
 #ifdef HAVE_BLE
                 BLE_power(0, NULL);

@@ -1,0 +1,23 @@
+name: code style check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  job_lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+
+      - name: Lint
+        uses: DoozyX/clang-format-lint-action@v0.14
+        with:
+          source: './app/src'
+          extensions: 'h,c'
+          clangFormatVersion: 14

@@ -1,7 +1,7 @@
 #*******************************************************************************
 #   Ledger App
 #   (c) 2017 Ledger
-#   (c) 2020 Tchain Ltd. adaptation for COTI
+#   (c) 2022 Tchain Ltd. adaptation for COTI
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #*******************************************************************************
 
 ifeq ($(BOLOS_SDK),)
-$(error Environment variable BOLOS_SDK is not set)
+	$(error Environment variable BOLOS_SDK is not set)
 endif
 
 include $(BOLOS_SDK)/Makefile.defines
@@ -37,10 +37,14 @@ APPVERSION_N = 1
 APPVERSION_P = 1
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
+# Ledger: add the "Pending security review" disclaimer
+APP_LOAD_PARAMS += --tlvraw 9F:01
+DEFINES += HAVE_PENDING_REVIEW_SCREEN
+
 ifeq ($(TARGET_NAME),TARGET_NANOS)
-    ICONNAME=icons/nanos_app_coti.ico
+	ICONNAME = icons/nanos_app_coti.gif
 else
-    ICONNAME=icons/nanox_app_coti.ico
+	ICONNAME = icons/nanox_app_coti.gif
 endif
 
 
@@ -61,17 +65,9 @@ DEFINES += MAJOR_VERSION=$(APPVERSION_M) MINOR_VERSION=$(APPVERSION_N) PATCH_VER
 DEFINES += OS_IO_SEPROXYHAL
 DEFINES += HAVE_BAGL HAVE_UX_FLOW HAVE_SPRINTF
 DEFINES += HAVE_IO_USB HAVE_L4_USBLIB IO_USB_MAX_ENDPOINTS=6 IO_HID_EP_LENGTH=64 HAVE_USB_APDU
-DEFINES += LEDGER_MAJOR_VERSION=$(APPVERSION_M) LEDGER_MINOR_VERSION=$(APPVERSION_N) LEDGER_PATCH_VERSION=$(APPVERSION_P)
-
-# U2F
-DEFINES += HAVE_U2F HAVE_IO_U2F
-DEFINES += U2F_PROXY_MAGIC=\"COTI\"
 DEFINES += USB_SEGMENT_SIZE=64
 DEFINES += BLE_SEGMENT_SIZE=32 #max MTU, min 20
-
-
 DEFINES += HAVE_WEBUSB WEBUSB_URL_SIZE_B=0 WEBUSB_URL=""
-
 DEFINES += UNUSED\(x\)=\(void\)x
 
 
@@ -94,7 +90,10 @@ else
 endif
 
 # Enabling debug PRINTF
-DEBUG = 0
+ifndef DEBUG
+    DEBUG = 0
+endif
+
 ifneq ($(DEBUG),0)
     DEFINES += HAVE_PRINTF
     ifeq ($(TARGET_NAME),TARGET_NANOS)
@@ -106,10 +105,6 @@ else
         DEFINES += PRINTF\(...\)=
 endif
 
-# Ledger: add the "Pending security review" disclaimer
-APP_LOAD_PARAMS += --tlvraw 9F:01
-DEFINES += HAVE_PENDING_REVIEW_SCREEN
-
 ##############
 #  Compiler  #
 ##############
@@ -118,21 +113,18 @@ $(info BOLOS_ENV=$(BOLOS_ENV))
 CLANGPATH := $(BOLOS_ENV)/clang-arm-fropi/bin/
 GCCPATH   := $(BOLOS_ENV)/gcc-arm-none-eabi-5_3-2016q1/bin/
 else
-$(info BOLOS_ENV is not set: falling back to CLANGPATH and GCCPATH)
+    $(info BOLOS_ENV is not set: falling back to CLANGPATH and GCCPATH)
 endif
 ifeq ($(CLANGPATH),)
-$(info CLANGPATH is not set: clang will be used from PATH)
+    $(info CLANGPATH is not set: clang will be used from PATH)
 endif
 ifeq ($(GCCPATH),)
-$(info GCCPATH is not set: arm-none-eabi-* will be used from PATH)
+    $(info GCCPATH is not set: arm-none-eabi-* will be used from PATH)
 endif
 
 CC := $(CLANGPATH)clang
-
 CFLAGS += -O3 -Os
-
 AS := $(GCCPATH)arm-none-eabi-gcc
-
 LD := $(GCCPATH)arm-none-eabi-gcc
 LDFLAGS += -O3 -Os
 LDLIBS += -lm -lgcc -lc
@@ -146,7 +138,7 @@ SDK_SOURCE_PATH += lib_stusb lib_stusb_impl lib_ux
 SDK_SOURCE_PATH += lib_u2f
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
-SDK_SOURCE_PATH += lib_blewbxx lib_blewbxx_impl
+	SDK_SOURCE_PATH += lib_blewbxx lib_blewbxx_impl
 endif
 
 load: all
