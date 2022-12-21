@@ -119,10 +119,8 @@ bool isFinalRequest(void)
     switch (appContext.messageSigningContext.signingType)
     {
     case BASE_TX:
-        isFinalRequest = 0 == getRemainingAddressLength();
-        break;
     case TX:
-        isFinalRequest = 0 == getRemainingAmountLength();
+        isFinalRequest = 0 == getRemainingAddressLength();
         break;
     default:
         isFinalRequest = appContext.messageSigningContext.processedMessageLength == appContext.messageSigningContext.signMessageLength;

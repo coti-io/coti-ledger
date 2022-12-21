@@ -1,34 +1,39 @@
 #include "shared_context.h"
 #include "ui_callbacks.h"
 
-UX_STEP_NOCB(uxSignFlowInitial, pnn,
+UX_STEP_NOCB(uxSignInitialStep, pnn,
              {
                  &C_icon_certificate,
                  "Sign",
                  displayData.signMessageDisplayData.signingTypeText,
              });
-UX_STEP_NOCB(uxSignMessageData, paging,
+UX_STEP_NOCB(uxSignMessageDataStep, paging,
              {
                  .title = "Message hash",
                  .text = displayData.signMessageDisplayData.message,
              });
-UX_STEP_NOCB(uxSignAmountData, paging,
+UX_STEP_NOCB(uxSignAmountDataStep, paging,
              {
                  .title = "Amount",
                  .text = displayData.signMessageDisplayData.amount,
              });
-UX_STEP_NOCB(uxSignAddressData, paging,
+UX_STEP_NOCB(uxSignAddressDataStep, paging,
              {
                  .title = "From Address",
                  .text = displayData.signMessageDisplayData.address,
              });
-UX_STEP_CB(uxSignMessageOk, pbb, io_seproxyhal_touch_sign_message_ok(NULL),
+UX_STEP_NOCB(uxSignDestinationAddressDataStep, paging,
+             {
+                 .title = "To Address",
+                 .text = displayData.signMessageDisplayData.address,
+             });
+UX_STEP_CB(uxSignMessageOkStep, pbb, io_seproxyhal_touch_sign_message_ok(NULL),
            {
                &C_icon_validate_14,
                "Sign",
                "message",
            });
-UX_STEP_CB(uxSignMessageCancel, pbb, io_seproxyhal_touch_sign_message_cancel(NULL),
+UX_STEP_CB(uxSignMessageCancelStep, pbb, io_seproxyhal_touch_sign_message_cancel(NULL),
            {
                &C_icon_crossmark,
                "Cancel",
@@ -36,13 +41,13 @@ UX_STEP_CB(uxSignMessageCancel, pbb, io_seproxyhal_touch_sign_message_cancel(NUL
            });
 
 const ux_flow_step_t *const uxSignFlow[5] = {
-    &uxSignFlowInitial, &uxSignMessageData, &uxSignMessageOk, &uxSignMessageCancel, FLOW_END_STEP,
+    &uxSignInitialStep, &uxSignMessageDataStep, &uxSignMessageOkStep, &uxSignMessageCancelStep, FLOW_END_STEP,
 };
 
 const ux_flow_step_t *const uxBaseTxFlow[6] = {
-    &uxSignFlowInitial, &uxSignAmountData, &uxSignAddressData, &uxSignMessageOk, &uxSignMessageCancel, FLOW_END_STEP,
+    &uxSignInitialStep, &uxSignAmountDataStep, &uxSignAddressDataStep, &uxSignMessageOkStep, &uxSignMessageCancelStep, FLOW_END_STEP,
 };
 
-const ux_flow_step_t *const uxTxFlow[5] = {
-    &uxSignFlowInitial, &uxSignAmountData, &uxSignMessageOk, &uxSignMessageCancel, FLOW_END_STEP,
+const ux_flow_step_t *const uxTxFlow[6] = {
+    &uxSignInitialStep, &uxSignAmountDataStep, &uxSignDestinationAddressDataStep, &uxSignMessageOkStep, &uxSignMessageCancelStep, FLOW_END_STEP,
 };

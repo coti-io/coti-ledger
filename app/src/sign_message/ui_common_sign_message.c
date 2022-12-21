@@ -39,7 +39,7 @@ uint32_t io_seproxyhal_touch_sign_message_ok(const bagl_element_t *e)
     // Send back the response, do not restart the event loop
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, txLength);
     // Display back the original UX
-    uiIdle();
+    uiMenuMain();
     // do not redraw the widget
     return 0;
 }
@@ -54,7 +54,7 @@ uint32_t io_seproxyhal_touch_sign_message_cancel(const bagl_element_t *e)
     // Send back the response, do not restart the event loop
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, txLength);
     // Display back the original UX
-    uiIdle();
+    uiMenuMain();
     // do not redraw the widget
     return 0;
 }

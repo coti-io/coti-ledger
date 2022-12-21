@@ -1,0 +1,38 @@
+name: coverity scan
+
+on: [ workflow_dispatch ]
+
+jobs:
+  coverity_scan:
+    name: Coverity Scan
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/coti-io/coti-ledger-app-scanner:latest
+
+    env:
+      PROJECT: coti-io%2Fcoti-ledger
+      TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+      EMAIL: ${{ secrets.COVERITY_SCAN_EMAIL }}
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+
+      - name: Build with cov-build
+        run: |
+          cd app
+          make clean
+          cov-build --dir cov-int make default
+
+      - name: Submit the result to Coverity Scan
+        run: |
+          cd app
+          tar czvf cov-int.tar.gz cov-int
+          curl \
+            --form token=$TOKEN \
+            --form email=$EMAIL \
+            --form file=@cov-int.tar.gz \
+            --form version=master \
+            --form description="Coti Ledger App" \
+            https://scan.coverity.com/builds?project=$PROJECT

@@ -1,8 +1,17 @@
 # COTI Ledger App
 
+[![GitHub Stars](https://img.shields.io/github/stars/coti-io/coti-ledger.svg)](https://github.com/coti-io/coti-ledger/stargazers)
+[![GitHub Issues](https://img.shields.io/github/issues/coti-io/coti-ledger.svg)](https://github.com/coti-io/coti-ledger/issues)
+[![Current Version](https://img.shields.io/badge/version-1.1.0-yellow.svg)](https://github.com/coti-io/coti-ledger/)
+[![GitHub CI](https://github.com/coti-io/coti-ledger/actions/workflows/ci-workflow.yml/badge.svg)](https://github.com/coti-io/coti-ledger/actions/workflows/ci-workflow.yml)
+[![GitHub Lint](https://github.com/coti-io/coti-ledger/actions/workflows/lint-workflow.yml/badge.svg)](https://github.com/coti-io/coti-ledger/actions/workflows/lint-workflow.yml)
+[![GitHub Coverity Scan](https://github.com/coti-io/coti-ledger/actions/workflows/coverity-scan-workflow.yml/badge.svg)](https://github.com/coti-io/coti-ledger/actions/workflows/coverity-scan-workflow.yml)
+[![Coverity](https://scan.coverity.com/projects/25249/badge.svg)](https://scan.coverity.com/projects/coti-io-coti-ledger)
+[![Discord Server](https://img.shields.io/discord/386571547508473876.svg)](https://discord.me/coti)
+
 ## Overview
 
-This is the Ledger Nano S COTI app.
+This is the Ledger Nano S/S+/X COTI app.
 
 ## Building and Installing
 
