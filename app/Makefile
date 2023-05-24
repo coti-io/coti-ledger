@@ -37,10 +37,6 @@ APPVERSION_N = 2
 APPVERSION_P = 0
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
-# Ledger: add the "Pending security review" disclaimer
-APP_LOAD_PARAMS += --tlvraw 9F:01
-DEFINES += HAVE_PENDING_REVIEW_SCREEN
-
 ifeq ($(TARGET_NAME),TARGET_NANOS)
 	ICONNAME = icons/nanos_app_coti.gif
 else
