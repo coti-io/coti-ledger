@@ -24,6 +24,7 @@ uint8_t io_event(uint8_t channel)
             THROW(EXCEPTION_IO_RESET);
         }
         // no break is intentional
+        __attribute__((fallthrough));
     case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
         UX_DISPLAYED_EVENT({})
         break;
